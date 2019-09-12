@@ -1,0 +1,62 @@
+---
+
+##  Docker repository usage
+docker_images_pull: no
+docker_images_push: no                                                 # using docker in isolation by default. set to yes to push to private registry.
+docker_images_force: yes                                               # rebuild all docker images by default.
+
+docker_repository: 0.0.0.0:5000                                        # Docker registry to push and pull images from
+maven_repository: 0.0.0.0:8081
+
+consul_service_ignore: "true"                                          # Used by registrator to determine if a container should be registered as a service
+consul_network_name: consul-net                                        # Docker network to attach this container to as part of the consul cluster
+consul_service_tags: "{{ consul_environment }}"
+
+aem_port: 4502                                                         # Default Docker Image port for AEM
+aem_host: localhost
+aem_username: admin
+aem_password: admin
+aem_runmode: "nosamplecontent"
+aem_topology_connector_urls: "{{ aem_host }}:{{ aem_port }}"
+aem_topology_host_ip: "127.0.0.1"                                      # IP to use to create replication agents to workers
+aem_topology_host_port: 4502
+
+aem_jvm_opts: "-server -Xms2048m -Xmx4096m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+docker_aem_quickstart_url: "http://{{ maven_repository }}/repository/maven/wkcda-aem/aem-quickstart/6.1/aem-quickstart-6.1.jar"
+
+docker_aem_published_port: "{{ aem_port }}:{{ aem_port }}/tcp"         # The published port to bind to the AEM containers
+
+docker_container_name: author
+docker_image: aem-author
+docker_image_tag: 1                                                    # Docker image tag for docker build and docker run
+docker_published_ports: "{{ docker_aem_published_port }}"
+docker_dns_servers: []
+
+docker_keep_volumes: true
+docker_volumes:
+  - "{{ docker_container_name }}:/aem/crx-quickstart"
+  - "tmp-{{ docker_container_name }}:/tmp"
+docker_volume_size: 500T
+
+docker:
+  api_version: 1.22
+  timezone: "Asia/Hong_Kong"
+
+dam_package_files: []
+
+# Configures the AEM Publisher Replication Agents in /etc/replication/agents.author
+replication_agents: []
+
+volume_info:
+  volume_group: rhel
+  logical_volume: "{{ docker_container_name }}"
+  size: 10g
+  mount_point: "/var/{{ docker_container_name }}"
+  mapping: "{{ docker_container_name }}_crypt"
+  fstype: xfs
+  is_encrypted: true
+
+stop_timeout: 3600
+interval_wait_all_bundles: 30
+lc_ctype: "en_HK.UTF-8"

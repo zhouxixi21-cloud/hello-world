@@ -1,0 +1,32 @@
+{
+  "conversionmap":{
+    "metadata.en/wkcd_mce:AccessbilePDF":"metadata/wkcd_mce:AccessbilePDF",
+    "metadata.internal/wkcd_dam:preuseUsageNotes":"metadata.en/wkcd_dam:preuseUsageNotes",
+    "metadata.internal/wkcd_dam:postuseUsageNotes":"metadata.en/wkcd_dam:postuseUsageNotes",
+    "metadata.internal/wkcd_dam:InternalExpiryDate":"metadata/wkcd_dam:InternalExpiryDate",
+    "metadata.internal/wkcd_dam:AccessClassification":"metadata/wkcd_dam:AccessClassification",
+    "metadata.internal/wkcd_dam:DateOfEvent":"metadata/wkcd_dam:DateOfEvent",
+    "metadata.internal/wkcd_dam:EventStartDate":"metadata/wkcd_dam:EventStartDate",
+    "metadata.internal/wkcd_dam:EventEndDate":"metadata/wkcd_dam:EventEndDate",
+    "metadata.internal/wkcd_dam:catalogueNo":"metadata/wkcd_dam:catalogueNo",
+    "metadata.internal/wkcd_dam:contractId":"metadata/wkcd_dam:contractId",
+    "metadata.internal/wkcd_mplus:AccessionStatus":"metadata/wkcd_mplus:AccessionStatus",
+    "metadata.internal/wkcd_mplus:mplusRightsFlexFieldConcat":"metadata/wkcd_mplus:mplusRightsFlexFieldConcat",
+    "metadata.internal/wkcd_dam:authors":"",
+    "metadata.internal/wkcd_pa:PAArchive":"metadata/wkcd_pa:PAArchive",
+    "metadata.internal/wkcd_dam:RightContractID":"metadata/wkcd_dam:RightContractID",
+    "metadata.internal/wkcd_mplus:AreaCategory":"metadata/wkcd_mplus:AreaCategory",
+    "metadata.internal/wkcd_mplus:AODateCreatedBeginYear":"metadata/wkcd_mplus:AODateCreatedBeginYear",
+    "metadata.internal/wkcd_mplus:AODateCreatedEndYear":"metadata/wkcd_mplus:AODateCreatedEndYear",
+    "metadata.internal/wkcd_dam:TMSObjectId":"metadata/wkcd_dam:TMSObjectId",
+    "metadata/wkcd_dam:preuseUsageNotes":"metadata.en/wkcd_dam:preuseUsageNotes",
+    "metadata/wkcd_dam:postuseUsageNotes":"metadata.en/wkcd_dam:postuseUsageNotes",
+    "metadata/wkcd_dam:WKCDAMediaVenue":"metadata.internal/wkcd_dam:WKCDAMediaVenue",
+    "metadata/wkcd_dam:WKCDAMediaEvent":"metadata.internal/wkcd_dam:WKCDAMediaEvent"
+  },
+  "schema_to_trigger_writeback":["metadata.en/wkcd_dam:AssetLifecycleStatus","metadata.en/wkcd_dam:AssetEditor","metadata.en/wkcd_dam:EventCategory",
+    "metadata.en/wkcd_dam:Notes","metadata.en/wkcd_mce:YouTubeCategory","metadata.en/wkcd_mce:VimeoCategory","metadata.en/wkcd_mce:YouTubePrivacy",
+    "metadata.en/wkcd_mce:YouTubeURLList","metadata.en/wkcd_pa:PAMRepository","metadata.en/wkcd_pa:VideoSynopsis","metadata.en/wkcd_pa:MusicStudioRecordedIn",
+    "metadata.en/wkcd_pa:VideoStudioRecordedIn","metadata.en/wkcd_pa:OriginalAvMedium","metadata.en/wkcd_mplus:imagecreditline",
+    "metadata.en/wkcd_mplus:Dimensions","metadata.en/wkcd_mplus:summary"]
+}

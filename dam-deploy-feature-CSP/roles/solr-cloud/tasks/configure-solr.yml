@@ -1,0 +1,37 @@
+---
+
+- name: waiting for zookeeper to accept requests
+  wait_for:
+    timeout: 20
+
+- name: configuring solr cloud with zookeeper
+  command: "docker exec {{ docker_container_name }} /opt/solr/bin/solr zk upconfig -n myconf -d {{ container_solr_path }} -z {{ solr_zookeeper_host }}"
+  become: yes
+  register: status_solr
+  ignore_errors: yes
+  tags:
+    - configure-solr
+
+- name: configuring solr logging
+  shell: "docker exec {{ docker_container_name }} bash -c \"{{ item }}\""
+  with_items:
+   - "grep -q -F 'log4j.logger.org.apache.zookeeper.server.NIOServerCnxn=ERROR' /opt/solr/server/resources/log4j.properties || echo 'log4j.logger.org.apache.zookeeper.server.NIOServerCnxn=ERROR' >> /opt/solr/server/resources/log4j.properties"
+  become: yes
+  tags:
+    - configure-solr
+
+- name: restart solr container
+  docker_container:
+    name: "{{ docker_container_name }}"
+    image: "{{ docker_repository }}/{{ docker_image }}:{{ docker_image_tag }}"
+    state: started
+    restart: yes
+    volumes: "{{ docker_volumes }}"
+    volume_driver: "{{ docker_volume_driver }}"
+    privileged: true
+    docker_api_version: "{{ docker.api_version }}"
+    network_mode: "{{ docker_network_mode }}"
+    networks: "{{ docker_network_name }}"
+  become: yes
+  tags:
+    - configure-solr

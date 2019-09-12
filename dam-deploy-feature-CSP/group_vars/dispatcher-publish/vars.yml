@@ -1,0 +1,25 @@
+---
+
+# file: group_vars/dispatcher-publish
+docker_image: aem-dam-dispatcher-publisher
+docker_image_tag: 1.3
+
+docker_network_mode: bridge                                 # Sets the network driver for the Docker container. Options: [bridge|overlay|host]
+docker_network_name:
+  - name: bridge
+  - name: "{{ consul_network_name}}"
+
+docker_volume_driver: local
+docker_volumes:
+  - "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}:/data"
+
+render_hostname: "{{ consul_environment }}.publisher.service.dc1.consul"
+render_port: 4503
+
+volume_info: []
+
+# dispatcher
+consul_service_name: publish-dispatcher
+
+service_cert_hostname: "dam-dev.westkowloon.hk"
+cert_hostname: "{{ service_cert_hostname }}"

@@ -1,0 +1,23 @@
+---
+
+- name: yum packages install
+  yum:
+    name: "{{ item.name }}-{{ item.version }}"
+    state: present
+    enablerepo: "{{ item.enablerepo }}"
+  with_items: "{{ yum.packages }}"
+  become: yes
+  become_method: sudo
+  tags:
+    - install-packages-server
+    - install-packages
+
+- name: yum security update
+  shell: "{{ item }}"
+  with_items:
+    - "yum-complete-transaction"
+    - "yum -y update-minimal --security --skip-broken"
+  become: yes  #激活权限
+  tags:
+    - install-packages-security
+    - install-packages

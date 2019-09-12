@@ -1,0 +1,79 @@
+---
+
+- name: Check docker Image ID
+  shell: "docker inspect --format='{{ '{{' }}.Config.Image{{ '}}' }}' {{ CONTAINER_ID }}"
+  register: image_id
+  ignore_errors: true
+  become: yes
+  become_method: sudo
+
+- name: Confirm container running
+  shell: "docker ps |grep '{{ CONTAINER_ID }}$'"
+  register: container_running
+  when: >
+    (COMMAND|default("") == "stop" or COMMAND|default("") == "restart")
+  ignore_errors: true
+  become: yes
+  become_method: sudo
+
+- name: Docker stop command for AEM
+  shell: "docker exec {{ CONTAINER_ID }} /aem/crx-quickstart/bin/stop"
+  when: >
+    (COMMAND|default("") == "stop" or COMMAND|default("") == "restart") and
+    ("aem:" in image_id.stdout) and
+    (container_running|success)
+  become: yes
+  become_method: sudo
+
+- name: Clean up before issue stop command to Dispatcher
+  shell: "docker exec --user=root {{ CONTAINER_ID }} sh -c 'rm -f /run/httpd/*'"
+  when: >
+    (COMMAND|default("") == "stop" or COMMAND|default("") == "restart") and
+    ("aem-dispatcher:" in image_id.stdout) and
+    (container_running|success)
+  become: yes
+  become_method: sudo
+
+- name: Docker stop command
+  shell: "docker stop {{ CONTAINER_ID }}"
+  when: >
+    (COMMAND|default("") == "stop" or COMMAND|default("") == "restart") and
+    ("aem:" not in image_id.stdout) and
+    (image_id.stdout != "") and
+    (container_running|success)
+  become: yes
+  become_method: sudo
+
+- name: Confirm container stopped
+  shell: "docker ps |grep '{{ CONTAINER_ID }}$'"
+  register: container_running
+  until: container_running|failed
+  retries: 360
+  delay: 10
+  when: >
+    (COMMAND|default("") == "stop" or COMMAND|default("") == "restart") and
+    (image_id.stdout != "")
+  ignore_errors: true
+  become: yes
+  become_method: sudo
+
+- name: Docker start command
+  shell: "docker start {{ CONTAINER_ID }}"
+  when: >
+    (COMMAND|default("") == "restart" or COMMAND|default("") == "start") and
+    (image_id.stdout != "")
+  become: yes
+  become_method: sudo
+
+- name: confirm container started
+  shell: "docker ps |grep '{{ CONTAINER_ID }}$'"
+  register: container_running
+  until: container_running|success
+  retries: 60
+  delay: 10
+  when: >
+    (COMMAND|default("") == "restart" or COMMAND|default("") == "start") and
+    (image_id.stdout != "")
+  ignore_errors: true
+  become: yes
+  become_method: sudo

@@ -1,0 +1,7 @@
+---
+- name: deploy application to esb
+  hosts: esb
+  roles:
+  - {
+      role: deploy-esb-applications
+    }

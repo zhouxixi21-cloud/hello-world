@@ -1,0 +1,60 @@
+---
+
+- name: wkcda dam application playbook
+  hosts: applications
+
+  pre_tasks: []   #是在roles执行前执行的任务
+
+  roles:
+  - role: server-user-groups
+  - role: docker-image-oracle-jdk
+  - role: server-splunkforwarder
+
+  tasks: []
+
+  post_tasks: []    #是在roles执行完成后执行的任务
+
+  handlers: []
+
+- name: wkcda dam consul servers
+  hosts: consul-server
+  gather_facts: no
+  vars:
+    docker_image_registrator: gliderlabs/registrator
+    docker_image_registrator_tag: master
+
+  pre_tasks: []
+
+  tasks: []
+
+  roles:
+
+  - role: consul-server
+  - role: registrator
+    docker_image: "{{ docker_image_registrator }}"
+    docker_image_tag: "{{ docker_image_registrator_tag }}"
+
+  post_tasks: []
+
+  handlers: []
+
+- name: wkcda dam consul clients
+  hosts: consul-client
+  gather_facts: no
+  vars:
+    docker_image_registrator: gliderlabs/registrator
+    docker_image_registrator_tag: master
+
+  pre_tasks: []
+
+  tasks: []
+
+  roles:
+  - role: consul-client
+  - role: registrator
+    docker_image: "{{ docker_image_registrator }}"
+    docker_image_tag: "{{ docker_image_registrator_tag }}"
+
+  post_tasks: []
+
+  handlers: []

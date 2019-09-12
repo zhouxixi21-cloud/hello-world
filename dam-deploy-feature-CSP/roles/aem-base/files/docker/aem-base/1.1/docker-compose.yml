@@ -1,0 +1,11 @@
+aem-base:
+  dockerfile: Dockerfile
+  build: .
+  labels:
+    aem.version: "6.1"
+    ffmpeg.version: "2.8.3"
+    ffmpeg.plugins: "yasm x264 x265 libogg libopus libvorbis libtheora libvpx libmp3lame faac xvid fdk-aac ffmpeg"
+    os.version: "centos 7"
+    java.version: "oracle 8"
+    container.description: "aem instance, will run as author unless specified otherwise"
+  container_name: "aem-base"

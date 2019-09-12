@@ -1,0 +1,27 @@
+# file: management
+
+###########################
+# HOSTS
+###########################
+
+[applications]
+Devops-L-AP002.wkcda.local ansible_host=10.32.64.11
+
+[consul-server]
+consul01.dam.wkcda.local ansible_host=10.32.64.11
+
+[jenkins]
+jenkins01.mgt.wkcda.local ansible_host=10.32.64.11
+
+[nexus]
+nexus01.mgt.wkcda.local ansible_host=10.32.64.11
+
+###########################
+# SERVICE TO HOST MAP
+###########################
+
+[management:children]
+applications
+consul-server
+jenkins
+nexus

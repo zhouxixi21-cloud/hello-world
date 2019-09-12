@@ -1,0 +1,7 @@
+---
+
+docker_container_name: "solr01-{{ consul_environment }}"
+
+docker_volume_driver: local
+
+consul_service_tags: "{{ consul_environment }},01"

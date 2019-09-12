@@ -1,0 +1,42 @@
+---
+
+- name: starting aem docker container
+  docker_container:
+    name: "{{ docker_container_name }}"
+    image: "{{ docker_repository }}/{{ docker_image }}:{{ docker_image_tag_aem }}"
+    pull: "{{ docker_images_pull }}"
+    state: started
+    privileged: true
+    volumes: "{{ docker_volumes }}"
+    volume_driver: "{{ docker_volume_driver }}"
+    keep_volumes: "{{ docker_keep_volumes }}"
+    docker_api_version: "{{ docker.api_version }}"
+    published_ports: "{{ docker_published_ports }}"
+    network_mode: "{{ docker_network_mode }}"
+    networks: "{{ docker_network_name }}"
+    dns_servers: "{{ docker_dns_servers }}"
+    memory_swappiness: 0
+    stop_timeout: "{{ stop_timeout }}"
+    labels:
+      REGISTRATOR_CONTAINER_IP: "{{ ansible_host }}"
+    env:
+      TZ: "{{ docker.timezone }}"
+      CQ_RUNMODE: "{{ aem_runmode }}"
+      CQ_JVM_OPTS: "{{ aem_jvm_opts }}"
+      CQ_NOFORK: "yes"
+      CQ_TZ: "{{ docker.timezone }}"
+      CQ_PORT: "{{ aem_port }}"
+      SERVICE_TAGS: "{{ consul_service_tags }}"
+      SERVICE_NAME: "{{ consul_service_name }}"
+      SERVICE_4502_NAME: "{{ consul_service_name }}"
+      SERVICE_4522_NAME: "{{ consul_service_name }}"
+      SERVICE_5433_NAME: "{{ consul_service_name }}"
+      LC_CTYPE: "{{ lc_ctype }}"
+      TOPOLOGY_CONNECTOR_URLS: "{{ aem_topology_connector_urls }}"
+      TOPOLOGY_HOST_IP: "{{ aem_topology_host_ip }}"
+      TOPOLOGY_HOST_PORT: "{{ aem_topology_host_port }}"
+  become: yes
+  tags:
+    - docker-containers
+    - docker-containers-aem-author
+    - docker-containers-aem-publisher

@@ -1,0 +1,53 @@
+# file: develop
+
+###########################
+# HOSTS
+###########################
+
+[applications]
+DAM-L-DV002.wkcda.local ansible_host=10.32.171.13
+DAM-L-DV003.wkcda.local ansible_host=10.32.171.14
+DAM-L-DV004.wkcda.local ansible_host=10.33.94.68
+
+[consul-server]
+consul01.dam.wkcda.local ansible_host=10.32.171.13 consul_opts_extra='-ui -bootstrap-expect 1'
+consul02.dam.wkcda.local ansible_host=10.32.171.14 consul_opts_extra='-ui -bootstrap-expect 1'
+consul03.dam.wkcda.local ansible_host=10.33.94.68 consul_opts_extra='-ui -bootstrap-expect 1'
+
+[consul-client]
+
+[esb]
+esb01.dam.wkcda.local ansible_host=10.33.94.68
+
+[author]
+author01.dev.dam.wkcda.local ansible_host=10.33.94.68
+
+[publisher]
+publisher01.dam.wkcda.local ansible_host=10.32.171.13
+publisher02.dam.wkcda.local ansible_host=10.32.171.14
+
+[dispatcher]
+
+[dispatcher-publish]
+dispatcher02.dam.wkcda.local ansible_host=10.32.171.13
+dispatcher03.dam.wkcda.local ansible_host=10.32.171.14
+
+[solr]
+solr01.dam.wkcda.local ansible_host=10.32.171.13
+solr02.dam.wkcda.local ansible_host=10.32.171.14
+solr03.dam.wkcda.local ansible_host=10.33.94.68
+
+###########################
+# SERVICE TO SERVER MAP
+###########################
+
+[develop:children]
+applications
+consul-server
+consul-client
+author
+dispatcher
+publisher
+dispatcher-publish
+solr
+esb

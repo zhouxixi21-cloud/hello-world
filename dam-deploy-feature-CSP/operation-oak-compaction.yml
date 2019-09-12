@@ -1,0 +1,96 @@
+---
+
+- name: aem oak compaction role
+  hosts:
+  - author
+
+  vars:
+    installfolder: "/aem"
+    aemfolder: "/aem/crx-quickstart"
+    oakversion: "1.2.20"
+    oakjar: "oak-run-{{ oakversion }}.jar"
+    oakrun: "/aem/maintain/{{ oakjar }}"
+    JVM_OPTS: "-Dtar.memoryMapped=true -Xms8g -Xmx8g"
+    stop_timeout: 3600
+
+  pre_tasks:
+  - name: stop aem container
+    docker_container:
+      name: "{{ docker_container_name }}"
+      state: stopped
+      stop_timeout: "{{ stop_timeout }}"
+      privileged: true
+      docker_api_version: "{{ docker.api_version }}"
+    become: yes
+    tags:
+      - stop-aem
+
+  - include_role:
+     name: docker-login
+
+  roles:
+  - role: docker-image-oracle-jdk
+
+  tasks:
+  - name: starting oak compaction docker container
+    docker_container:
+      name: "oakcompaction-{{ docker_container_name }}"
+      image: "{{ docker_repository }}/devops/oracle-jdk:8u73-b02"
+      state: started
+      privileged: true
+      volumes: "{{ docker_volumes }}"
+      command: sleep 1d
+      docker_api_version: "{{ docker.api_version }}"
+    become: yes
+    tags:
+      - oak-compaction
+
+  - name: register log file name
+    shell: 'date +%Y-%m-%d'
+    register: current_run_timestamp
+    tags:
+      - oak-compaction
+
+  - name: download oak-run jar
+    become: yes
+    shell: "docker exec oakcompaction-{{ docker_container_name }} bash -c \"{{ item }}\""
+    with_items:
+     - "mkdir -p {{ installfolder }}/maintain"
+     - "curl --output {{ oakrun }} http://central.maven.org/maven2/org/apache/jackrabbit/oak-run/{{ oakversion }}/{{ oakjar }}"
+    tags:
+     - oak-compaction
+
+  - name: Run oak compaction
+    become: yes
+    shell: "docker exec oakcompaction-{{ docker_container_name }} bash -c \"{{ item }}\""
+    with_items:
+     - "java {{ JVM_OPTS }} -jar {{ oakrun }} checkpoints {{ aemfolder }}/repository/segmentstore >> {{ aemfolder }}/logs/compact-{{ current_run_timestamp.stdout }}.log 2>&1"
+     - "java {{ JVM_OPTS }} -jar {{ oakrun }} checkpoints {{ aemfolder }}/repository/segmentstore rm-unreferenced >> {{ aemfolder }}/logs/compact-{{ current_run_timestamp.stdout }}.log 2>&1"
+     - "java {{ JVM_OPTS }} -jar {{ oakrun }} compact {{ aemfolder }}/repository/segmentstore >> {{ aemfolder }}/logs/compact-{{ current_run_timestamp.stdout }}.log 2>&1"
+    tags:
+      - oak-compaction
+
+  - name: remove oak compaction docker container
+    docker_container:
+      name: "oakcompaction-{{ docker_container_name }}"
+      image: "{{ docker_repository }}/devops/oracle-jdk:8u73-b02"
+      state: absent
+      command: sleep 1d
+      docker_api_version: "{{ docker.api_version }}"
+    become: yes
+    tags:
+      - remove-oak-compaction-container
+      
+  post_tasks:
+  - name: start aem container
+    docker_container:
+      name: "{{ docker_container_name }}"
+      image: "{{ docker_repository }}/{{ docker_image }}:{{ docker_image_tag_aem }}"
+      state: started
+      privileged: true
+      volumes: "{{ docker_volumes }}"
+      volume_driver: "{{ docker_volume_driver }}"
+      docker_api_version: "{{ docker.api_version }}"
+    become: yes
+    tags:
+      - start-aem

@@ -1,0 +1,42 @@
+---
+
+- name: creating temporary working directory
+  tempfile:
+    state: directory
+  register: working_dir
+  tags:
+    - docker-images-build
+    - docker-images-build-solr
+
+- name: copy solr dockerfile solr
+  synchronize:
+    src: "docker/aem-solr/{{ docker_image_tag }}"
+    dest: "{{ working_dir.path }}"
+  tags:
+    - docker-images-build
+    - docker-images-build-solr
+
+- name: build solr cloud docker image
+  docker_image:
+    name: aem-solr-cloud
+    tag: "{{ docker_image_tag }}"
+    path: "{{ working_dir.path }}/{{ docker_image_tag }}"
+    state: present
+    repository: "{{ docker_repository }}/aem-solr-cloud"
+    push: "{{ docker_images_push }}"
+    pull: "{{ docker_images_pull }}"
+    force: "{{ docker_images_force }}"
+    buildargs:
+      SOLR_VERSION: "{{ container_solr_version }}"
+  become: yes
+  tags:
+    - docker-images-build
+    - docker-images-build-solr
+
+- name: removing temp directory
+  file:
+    name: "{{ working_dir.path }}"
+    state: absent
+  tags:
+    - docker-images-build
+    - docker-images-build-solr

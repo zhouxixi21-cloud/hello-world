@@ -1,0 +1,7 @@
+---
+
+aem_host: "{{ aem_bridge_host.stdout }}"
+aem_port: "{{ aem_port }}"
+
+replication_agents_package_name: aem-replication-agents
+replication_agents_package_version: 1.0.0

@@ -1,0 +1,31 @@
+---
+
+docker:
+  api_version: 1.22
+  timezone: "Asia/Hong_Kong"
+
+##  Docker repository usage
+docker_images_pull: no
+docker_images_push: no                                      # using docker in isolation by default. set to yes to push to private registry.
+
+docker_repository: 10.72.76.85:5000                             # Docker registry to push and pull images from
+docker_registry_use: no                                     # yes to use private registry
+docker_images_force: yes                                    # rebuild all docker images by default.
+
+docker_registry_username: admin                             # parameter for 'docker login --username'
+docker_registry_password: admin123                          # parameter for 'docker login --password'
+docker_registry_email: devops@wkcda.hk
+
+docker_container_name: toughday
+docker_image: toughday
+docker_image_tag: 1
+docker_command: -Dhostname=192.168.28.2 -Dport=4502 -DuploadImage.count=10 uploadImage
+
+volume_info:
+  volume_group: rhel
+  logical_volume: toughday
+  size: 10g
+  mount_point: /var/toughday
+  mapping: rhel-toughday
+  fstype: xfs
+  is_encrypted: false

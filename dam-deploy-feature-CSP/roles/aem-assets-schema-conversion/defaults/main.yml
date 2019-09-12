@@ -1,0 +1,15 @@
+---
+
+maven_repository_url: http://10.32.64.11:8081/repository/wkcda-maven-plugin
+
+aem_host: 192.168.28.2
+aem_port: 4502
+aem_username: admin
+aem_password: admin
+interval_wait_all_bundles: 30
+rootpath: "/content/dam"
+
+schemamap_artifact_id: "data_release_3_"
+schemamap_start_version: 1
+schemamap_target_version: 1
+schemamap_extension: json

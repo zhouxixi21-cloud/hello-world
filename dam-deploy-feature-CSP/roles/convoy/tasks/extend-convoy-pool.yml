@@ -1,0 +1,36 @@
+---
+
+- name: growing convoy data
+  lvol:
+    vg: rhel
+    lv: convoy_data
+    size: "{{ convoy_device_data_alloc }}"     # preserve some space for possible rhel/root extend
+  ignore_errors: true
+  become: yes
+  tags:
+    - extend-convoy-pool
+
+- name: register convoy data device size
+  shell: "lvs {{ convoy_device_data }} -o lv_size --units B --noheadings"
+  register: convoy_data_size
+  become: yes
+  tags:
+    - extend-convoy-pool
+
+- name: register the sector size
+  set_fact:
+    pool_size: "{{ convoy_data_size.stdout | replace('B', '') | trim }}"
+  tags:
+    - extend-convoy-pool
+
+- name: construct dm table
+  shell: "dmsetup table convoy-pool | sed \"s/0 [0-9]* thin/0 $(({{ pool_size }}/512)) thin/\" | dmsetup load convoy-pool"
+  become: yes
+  tags:
+    - extend-convoy-pool
+
+- name: activate dm table
+  shell: "dmsetup resume convoy-pool"
+  become: yes
+  tags:
+    - extend-convoy-pool

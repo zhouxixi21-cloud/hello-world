@@ -1,0 +1,51 @@
+---
+
+- name: wkcda dam author playbook
+  hosts: author
+
+  pre_tasks:
+
+  - name: ensure docker service is running
+    systemd:
+      name: docker.service
+      state: started
+    become: yes
+
+  - include_role:
+      name: docker-login
+
+  roles:
+    - role: aem-base
+    - role: aem
+
+  tasks:
+
+  - include_role:
+     name: aem-packages
+    vars:
+      group_name: "{{ item.group_name }}"
+      package_name: "{{ item.package_name }}"
+      package_version: "{{ item.version }}"
+      location_full: "{{ item.location_full | default(None) }}"
+      file_name: "{{ item.file_name }}"
+      direct_url: "{{ item.direct_url | default(None) }}"
+      requires_restart: "{{ item.requires_restart | default('no') }}"
+    with_items: "{{ dam_package_files }}"
+    tags:
+      - aem-packages
+
+  - include_role:
+      name: aem-replication-agents
+  - include_role:
+      name: aem-configure-workflow
+
+  - name: Generate self-signed key
+    shell: "docker exec {{ docker_container_name }} bash -c \"{{ item }}\""
+    with_items:
+     - "mkdir -p /aem/crx-quickstart/ssl"
+     - "[ -f /aem/crx-quickstart/ssl/keystorename.keystore ] || keytool -genkeypair -keyalg RSA -validity 1095 -alias cqse -keystore /aem/crx-quickstart/ssl/keystorename.keystore -keypass 1qaz#EDC -storepass 1qaz#EDC -dname 'CN=dam, OU=Group, O=Company, L=City, S=State, C=Country'"
+    become: yes
+    tags:
+      - author-ssl
+
+  handlers: []

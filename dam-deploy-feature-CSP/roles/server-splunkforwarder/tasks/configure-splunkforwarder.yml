@@ -1,0 +1,34 @@
+---
+
+- name: download splunk forwarder
+  shell: "wget -nv --output-document={{ splunkufInstaller_path }} {{ splunkufInstaller_src }}"
+  become: yes
+  tags:
+    - get-splunkuf
+
+- name: install splunk forwarder
+  yum:
+      name: "{{ splunkufInstaller_path }}"
+      state: present
+  become: yes
+  tags:
+    - install-splunkuf
+
+- name: removing splunk forwarder installer
+  file:
+    name: "{{ splunkufInstaller_path }}"
+    state: absent
+  become: yes
+  tags:
+    - install-splunkuf
+
+- name: configure splunk forwarder
+  shell: "{{ item }}"
+  with_items:
+   - "/opt/splunkforwarder/bin/splunk start --accept-license --no-prompt --seed-passwd {{ splunkufadminpass }}"
+   - "/opt/splunkforwarder/bin/splunk enable boot-start"
+   - "/opt/splunkforwarder/bin/splunk set deploy-poll {{ splunk_deploymentserver }} -auth admin:{{ splunkufadminpass }}"
+   - "/opt/splunkforwarder/bin/splunk restart"
+  become: yes
+  tags:
+    - configure-splunkuf

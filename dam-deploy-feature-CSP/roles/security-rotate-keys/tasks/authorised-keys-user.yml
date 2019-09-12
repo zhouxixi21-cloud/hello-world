@@ -1,0 +1,49 @@
+---
+
+  - name: Add Allowed Authorized Keys
+    lineinfile:
+      dest: "{{ authorized_keys_dest }}"
+      line: "{{ lookup('file', item ) }}"
+      state: present
+      create: yes
+    with_lines: ls -1 roles/security-rotate-keys/files/allow/*.pub
+    tags:
+      - security-rotate-keys
+      - add-allow-adminkeys
+
+  - name: Remove Deny Authorized Keys
+    lineinfile:
+      dest: "{{ authorized_keys_dest }}"
+      line: "{{ lookup('file', item ) }}"
+      state: absent
+      create: yes
+    with_lines: ls -1 roles/security-rotate-keys/files/deny/*.pub
+    tags:
+      - security-rotate-keys
+      - remove-deny-adminkeys
+
+  - name: Add Allowed Authorized Support Keys
+    lineinfile:
+      dest: "/home/3app-wkcda-bkup-svc/.ssh/authorized_keys"
+      line: "{{ lookup('file', item ) }}"
+      state: present
+      create: yes
+    with_lines: ls -1 roles/security-rotate-keys/files/support/3app-wkcda-bkup-svc/allow/*.pub
+    become: yes
+    become_method: sudo
+    tags:
+      - security-rotate-keys
+      - add-allow-support
+
+  - name: Remove Deny Authorized Support Keys
+    lineinfile:
+      dest: "/home/3app-wkcda-bkup-svc/.ssh/authorized_keys"
+      line: "{{ lookup('file', item ) }}"
+      state: absent
+      create: yes
+    with_lines: ls -1 roles/security-rotate-keys/files/support/3app-wkcda-bkup-svc/deny/*.pub
+    become: yes
+    become_method: sudo
+    tags:
+      - security-rotate-keys
+      - remove-deny-support

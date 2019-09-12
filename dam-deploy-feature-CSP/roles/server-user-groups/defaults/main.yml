@@ -1,0 +1,4 @@
+---
+
+group_apache_gid: 1100
+group_solr_gid: 1011

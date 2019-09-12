@@ -1,0 +1,31 @@
+---
+
+- name: creating apache group
+  group:
+    name: apache
+    state: present
+    gid: "{{ group_apache_gid }}"   #组gid
+  become: yes
+
+- name: creating apache user
+  user:
+    name: apache
+    comment: "apache (docker)"   #注释信息
+    uid: "{{ group_apache_gid }}"
+    group: apache
+  become: yes
+
+- name: creating solr group
+  group:
+    name: solr
+    state: present
+    gid: "{{ group_solr_gid }}"
+  become: yes
+
+- name: creating solr user
+  user:
+    name: solr
+    comment: "apache (docker)"
+    uid: "{{ group_solr_gid }}"
+    group: solr
+  become: yes

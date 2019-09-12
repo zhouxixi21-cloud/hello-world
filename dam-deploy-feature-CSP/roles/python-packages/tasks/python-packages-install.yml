@@ -1,0 +1,33 @@
+---
+
+- name: installing easy_install packages
+  shell: "easy_install {{ item.name }}=={{ item.version }}"   #easy_install和pip是下载python的一个公共资源库
+  with_items: "{{ easy_install.packages }}"
+  become: yes
+  tags:
+    - install-packages-python
+    - install-packages
+
+- name: installing pip packages
+  pip:
+    name: "{{ item.name }}"
+    version: "{{ item.version }}"
+    extra_args: "{{ item.extra_args }}"
+  with_items: "{{ pip.packages }}"
+  register: result   #用register变量可以判断是否存在，存在就是success
+  until: result|success
+  retries: 2
+  delay: 1
+  become: yes
+  tags:
+    - install-packages-python
+    - install-packages
+
+- name: installing pyaem packages   
+  pip:
+    name: "http://{{ maven_repository }}/repository/maven/wkcd-aem/pyaem/1.0.0/pyaem-1.0.0.zip"
+  become: yes
+  tags:
+    - install-packages-pyaem
+    - install-packages-python
+    - install-packages

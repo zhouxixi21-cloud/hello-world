@@ -1,0 +1,21 @@
+---
+
+# Default network interfaces for the default VM (see: /etc/sysconfig/network-scripts/)
+
+network_interfaces:
+- conn_name: eth0
+  ipaddr: 192.168.27.2
+  gateway: 10.72.36.250
+  dns4:
+    - 8.8.8.8
+    - 8.8.4.4
+  peerdns: "yes"
+  uuid: 8500e788-02a3-4792-83bf-d6ae7d395a0
+- conn_name: eth2
+  ipaddr: 192.168.28.2
+  gateway: 10.72.36.250
+  dns4:
+    - 8.8.8.8
+    - 8.8.4.4
+  peerdns: "yes"
+  uuid: 3a73717e-65ab-93e8-b518-24f5af32dc0d

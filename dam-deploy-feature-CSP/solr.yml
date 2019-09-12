@@ -1,0 +1,16 @@
+---
+
+- name: solr cloud docker build
+  hosts: solr
+  pre_tasks:
+    - name: ensure docker service is running
+      systemd:
+        name: docker.service
+        state: started
+      become: yes
+
+    - include_role:   ###
+        name: docker-login
+
+  roles:
+  - role: solr-cloud

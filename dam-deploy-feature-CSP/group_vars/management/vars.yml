@@ -1,0 +1,116 @@
+---
+
+docker_images_force: no
+docker_images_push: no
+docker_images_pull: yes                                     # Enable pulling FROM images
+
+docker_registry_username: admin
+docker_registry_password: admin123
+docker_registry_email: devops@wkcda.hk
+
+docker_dns_servers:
+- "{{ ansible_host }}"
+
+docker_repository: 10.32.64.11:5000
+maven_repository: 10.32.64.11:8081
+
+consul_dns_primary: 8.8.8.8                                 # IP address of the consul DNS. Docker network will be configured to this.
+consul_dns_secondary: 8.8.4.4
+
+# consul-server
+docker_consul_net_driver: bridge                            # Sets the network driver for the Docker container. Options: [bridge|overlay|host]
+consul_environment: management
+consul_host: "{{ ansible_host }}"                           # Registrator registers services with this consul host
+consul_dns:                                                 # IP address of the consul DNS. Docker network will be configured to this.
+- "{{ consul_dns_primary }}"
+- "{{ consul_dns_secondary }}"
+consul_network_name: consul-net
+
+docker_cluster_store: consul://consul.service.dc1.consul:8500
+docker_cluster_advertise: 10.32.64.11:2375
+docker_daemon_template: cluster
+
+# consul-server
+consul_opts_extra: "-bootstrap-expect 1"
+
+consul_bind_ip: "{{ ansible_host }}"
+
+#iptable:
+#  rules:
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 5000     # Nexus
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8922     # GitLab
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8980     # GitLab
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8943     # GitLab
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 80     # GitLab
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8080     # Jenkins
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8081     # Nexus
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 53     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: udp
+#      match: udp
+#      port: 53     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8300     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8301     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: udp
+#      match: udp
+#      port: 8301     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8302     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: udp
+#      match: udp
+#      port: 8302     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8500     # Consul
+#      jump_target: ACCEPT
+
+mount_islion: false

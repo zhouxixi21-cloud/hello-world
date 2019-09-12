@@ -1,0 +1,39 @@
+---
+
+- name: 'Wait until AEM login page at'
+  debug: msg="http://{{ aem_host }}:{{ aem_port }}"
+  tags:
+    - aem-verify
+
+- name: wait until aem login page is ready
+  action: aem_login_ready
+    url=http://{{ aem_host }}:{{ aem_port }}
+  register: result
+  until: result|success
+  retries: 360
+  delay: "{{ VERIFY_DELAY | default(5) }}"
+  tags:
+    - aem-verify
+
+- name: 'Ensure admin can login to web console'
+  uri: url=http://{{ aem_host }}:{{ aem_port }}/system/console/configMgr force_basic_auth=yes user={{ aem_username }} password={{ aem_password }} timeout=300 return_content=yes
+  register: web_console
+  until: web_console.content.find("Configuration") != -1
+  retries: 180
+  delay: "{{ VERIFY_DELAY | default(5) }}"
+  ignore_errors: true
+  tags:
+    - aem-verify
+
+#    - name: AEM node status
+#      debug: var=web_console
+#      tags: aem-verify
+
+- name: 'Ensure admin can login to AEM'
+  uri: url=http://{{ aem_host }}:{{ aem_port }}/libs/granite/core/content/login.html force_basic_auth=yes user={{ aem_username }} password={{ aem_password }} timeout=300 return_content=yes
+  register: home_page
+  until: home_page.content.find("QUICKSTART") != -1
+  retries: 180
+  delay: "{{ VERIFY_DELAY | default(5) }}"
+  tags:
+    - aem-verify

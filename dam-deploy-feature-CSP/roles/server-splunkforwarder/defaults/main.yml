@@ -1,0 +1,6 @@
+---
+
+splunk_deploymentserver: "172.16.2.109:8089"
+splunkufInstaller_src: "http://10.32.64.11:8081/repository/maven/org/com.splunk.splunkforwarder/7.1.1/com.splunk.splunkforwarder-7.1.1.rpm"
+splunkufInstaller_path: "/tmp/splunkforwarder-7.1.1-8f0ead9ec3db-linux-2.6-x86_64.rpm"
+splunkufadminpass: "changeme"

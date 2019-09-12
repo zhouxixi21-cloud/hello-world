@@ -1,0 +1,33 @@
+---
+
+docker:
+  api_version: 1.22
+  timezone: "Asia/Hong_Kong"
+
+docker_image: consul
+docker_image_tag: latest
+docker_recreate: yes
+
+consul_config_tmp: /tmp/consul                             # Path to mount the volume to the host
+consul_bind_ip: 192.168.28.2                               # IP to bind the Consul container in the host
+consul_service_name: consul                                # Service name registered in consul
+consul_host_name: "{{ ansible_host }}"                     # Hostname of the Consul node
+consul_opts_extra: ""                                      # Consul options to pass in the command
+consul_recursor: 10.32.132.10
+consul_opts: "-server -recursor {{ consul_recursor }} {{ consul_opts_extra }}"
+
+docker_container_name: consul-server                       # Name of the Docker container
+docker_dns_servers: []                                     # Configure DNS in Docker container
+docker_volume_driver: local
+docker_published_ports:
+- "{{ consul_bind_ip }}:53:8600/tcp"
+- "{{ consul_bind_ip }}:53:8600/udp"
+- "{{ consul_bind_ip }}:8300:8300/tcp"
+- "{{ consul_bind_ip }}:8301:8301/tcp"
+- "{{ consul_bind_ip }}:8301:8301/udp"
+- "{{ consul_bind_ip }}:8302:8302/tcp"
+- "{{ consul_bind_ip }}:8302:8302/udp"
+- "{{ consul_bind_ip }}:8400:8400/tcp"
+- "{{ consul_bind_ip }}:8500:8500/tcp"
+docker_volumes:
+  - "{{ consul_config_path }}:/consul:z"

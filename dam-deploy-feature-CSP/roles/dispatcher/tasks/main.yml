@@ -1,0 +1,6 @@
+---
+
+- include: docker-image-build-dispatcher.yml
+  hosts: dispatcher
+  tags:
+    - docker-images-build

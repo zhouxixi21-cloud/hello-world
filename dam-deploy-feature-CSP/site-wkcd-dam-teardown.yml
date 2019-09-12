@@ -1,0 +1,22 @@
+---
+
+- name: wkcda dam teardown
+  hosts: applications
+  tasks:
+    - name: docker stopping all containers
+      docker_containers:
+        state: stopped
+      become: yes
+    - name: docker removing all containers
+      docker_containers:
+        state: absent
+        keep_volumes: false
+      become: yes
+    - name: docker removing all volumes
+      docker_volumes:
+        state: absent
+      become: yes
+    - name: docker removing all images
+      docker_images:
+        state: absent
+      become: yes

@@ -1,0 +1,9 @@
+---
+
+- name: login to private docker repository
+  docker_login:
+    username: "{{ docker_registry_username }}"
+    password: "{{ docker_registry_password }}"
+    registry: "{{ docker_repository }}"
+    email: "{{ docker_registry_email }}"
+  become: yes

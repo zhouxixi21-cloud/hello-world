@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ====================================================================== -->
+    <!-- P A R E N T    P R O J E C T    D E S C R I P T I O N                  -->
+    <!-- ====================================================================== -->
+    <parent>
+        <groupId>wkcd-aem</groupId>
+        <artifactId>wkcd-aem-parent</artifactId>
+        <version>0.0.6-SNAPSHOT</version>
+    </parent>
+
+    <!-- ====================================================================== -->
+    <!-- P R O J E C T    D E S C R I P T I O N                                 -->
+    <!-- ====================================================================== -->
+
+    <artifactId>wkcd-deploy</artifactId>
+    <packaging>pom</packaging>
+    <name>WKCD Deploy</name>
+    <description>Deploying for WKCD AEM project</description>
+
+    <properties>
+        <aem.application>aem</aem.application>
+        <aem.username>admin</aem.username>
+        <aem.password>admin</aem.password>
+    </properties>
+
+    <scm>
+        <connection>scm:git:ssh://git@bitbucket.org/rxpservices/wkcd-deploy.git</connection>
+        <developerConnection>scm:git:ssh://git@bitbucket.org/rxpservices/wkcd-deploy.git</developerConnection>
+        <url>https://bitbucket.org/rxpservices/wkcd-deploy.git</url>
+    </scm>
+
+    <dependencyManagement>
+        <dependencies>
+        </dependencies>
+    </dependencyManagement>
+
+    <profiles>
+    </profiles>
+
+</project>

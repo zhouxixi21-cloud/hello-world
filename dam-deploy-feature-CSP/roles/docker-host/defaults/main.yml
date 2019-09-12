@@ -1,0 +1,23 @@
+---
+
+docker_repository: "10.32.64.11:5000"
+
+docker_daemon_template: default                             # Configures /etc/sysconfig/docker. Options: [default|cluster]
+docker_cluster_store: "consul://0.0.0.0:8500"
+docker_cluster_advertise: "{{ ansible_host }}:2375"         # docker daemon parameter --cluster-advertise
+
+consul_dns:
+  - 8.8.8.8
+  - 8.8.4.4
+
+lv_create: false                                           # set to true if creating a new logical volume (do not set extend or resize to true)
+lv_extend: false                                           # set to true if extending the logical volume (do not set create to true)
+lv_resize: "{{ lv_extend }}"                                           # set to true if resizing the logical volume (do not set create to true)
+lvextend_options: "+90%FREE"                              # setting the options to pass to lvextend --- ('-L+10G') - would increase by 10GB whereas ('-l +100%FREE') would increase to full capacity
+extend_vgname: "vg1"                                # set to volume group name to extend
+extend_lvname: "docker--pool"                                # set to logical volume name to extend
+vg1_disks: []
+vg2_disks: []
+mount_islion: true
+use_islion: "{{ mount_islion }}"
+nfs_share: "DAM_NFS_Dev"

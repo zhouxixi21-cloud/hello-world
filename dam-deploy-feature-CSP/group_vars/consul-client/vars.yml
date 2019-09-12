@@ -1,0 +1,21 @@
+---
+# file: group_vars/consul-client
+
+# docker-container
+docker_image: consul
+docker_image_tag: latest
+
+
+# docker-host
+docker_cluster_store: consul://consul.service.dc1.consul:8500   # docker daemon parameter --cluster-store
+
+consul_bind_ip: "{{ ansible_host }}"                            # IP to bind the consul container in the host
+consul_host: "{{ ansible_host }}"
+consul_config_path: /var/consul                                 # Path to mount the volume to the host
+consul_network_name: consul-net                                 # Docker network to add DAM containers to
+
+docker_volume_driver: local
+docker_volumes:
+  - "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}:/consul/data"
+
+volume_info: []

@@ -1,0 +1,20 @@
+# Ansible managed
+# Manual customization of this file is not recommended.
+*filter
+:INPUT DROP [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 8084 -j ACCEPT
+-A INPUT -p udp -m udp --dport 123 -j ACCEPT
+-A INPUT -s {{ snmp_src }} -p udp -m udp --dport 161 -j ACCEPT
+-A INPUT -s 10.35.91.115/32 -p udp -m udp --dport 161 -j ACCEPT
+{% for item in iptable.rules %}
+-A {{ item.chain }} -p {{ item.protocol }} -m {{ item.match }} --dport {{ item.port }} -j {{ item.jump_target }}
+{% endfor %}
+-A INPUT -p icmp -j ACCEPT
+-A FORWARD -i docker0 -o eth0 -j ACCEPT
+-A FORWARD -i eth0 -o docker0 -j ACCEPT
+-A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+COMMIT

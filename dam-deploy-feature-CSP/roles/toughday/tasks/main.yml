@@ -1,0 +1,77 @@
+---
+- name: test if docker service is running
+  command: systemctl status docker
+  ignore_errors: yes
+  changed_when: false
+  register: docker_status
+  no_log: True
+
+- name: Create temp directory
+  shell: "mktemp -d"
+  register: mktemp
+  tags:
+    - docker-images-build
+
+- name: copy docker files
+  synchronize:
+    src: docker/
+    dest: "{{ mktemp.stdout }}"
+  tags:
+    - docker-images-build
+
+- name: login to private docker repository
+  docker_login:
+    username: "{{ docker_registry_username }}"
+    password: "{{ docker_registry_password }}"
+    registry: "{{ docker_repository }}"
+    email: "{{ docker_registry_email }}"
+  when: docker_images_push == "yes"
+  become: yes
+  tags:
+    - docker-images-build
+
+- name: ensure toughday image is present
+  docker_image:
+    path: "{{ mktemp.stdout }}/toughday/{{ docker_image_tag }}"
+    name: toughday
+    tag: "{{ docker_image_tag }}"
+    state: present
+    force: "{{ docker_images_force }}"
+    push: "{{ docker_images_push }}"
+    pull: "{{ docker_images_pull }}"
+    repository: "{{ docker_repository }}/toughday"
+  become: yes
+  become_method: sudo
+  tags:
+    - docker-images-build
+    - docker-images-build-toughday
+
+- name: starting toughday DAM
+  docker_container:
+    name: "{{ docker_container_name }}"
+    image: "{{ docker_image }}:{{ docker_image_tag }}"
+    state: started
+    privileged: true
+    env:
+      TZ: "{{ docker.timezone }}"
+    command: "{{ docker_command }}"
+  become: yes
+  tags:
+    - toughday-dam
+
+#- name: remove toughday container
+#  docker_container:
+#    name: "{{ docker_container_name }}"
+#    state: absent
+#    keep_volumes: False
+#    privileged: true
+#  become: yes
+#  tags:
+#    - toughday-dam
+
+- name: removing temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  tags:
+    - docker-images-build

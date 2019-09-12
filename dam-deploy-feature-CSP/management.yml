@@ -1,0 +1,24 @@
+---
+
+- name: build nexus service
+  hosts: nexus
+  pre_tasks:
+    - include_role:
+        name: docker-login
+
+  roles:
+    - role: nexus
+  tags:
+    - docker-images-build-nexus
+    - docker-containers-nexus
+
+- name: build jenkins service
+  hosts: jenkins
+  pre_tasks:
+    - include_role:
+        name: docker-login
+
+  roles:
+    - role: jenkins
+  tags:
+    - docker-images-build-jenkins

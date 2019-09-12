@@ -1,0 +1,20 @@
+---
+
+- name: creating content package folder
+  file:
+    path=aem_conf/jcr_root/etc/workflow/launcher/config/{{ item.name }} state=directory
+  with_items:
+    - "{{ dam_update_asset_workflowlauncher }}"
+  tags:
+    - aem-configure-workflow
+    - configure-dam-update-asset-workflow
+
+- name: creating dam-update-asset-workflow content
+  template:
+    src="{{ item.name }}.j2"
+    dest="aem_conf/jcr_root/etc/workflow/launcher/config/{{ item.name }}/.content.xml"
+  with_items:
+    - "{{ dam_update_asset_workflowlauncher }}"
+  tags:
+    - aem-configure-workflow
+    - configure-dam-update-asset-workflow

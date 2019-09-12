@@ -1,0 +1,16 @@
+---
+# file: group_vars/solr
+docker_image_tag: 4.1
+
+container_solr_host_port: 8983
+
+solr_bind_ip: "{{ ansible_host }}"
+
+consul_service_name: solr
+
+docker_volume_driver: local
+docker_volumes:
+  - "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}:/var/solr/data"
+
+volume_info: []
+

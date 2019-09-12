@@ -1,0 +1,222 @@
+---
+
+- name: wkcda aem install packages playbook
+  hosts: author:publisher:processing
+  strategy: free
+  gather_facts: no
+  vars:
+    aem_host: "{{ ansible_host }}"
+    interval_wait_all_bundles: 30
+
+  tasks:
+
+  - include_role:
+     name: nexus-packages
+
+  - name: restart aem container
+    docker_container:
+      name: "{{ docker_container_name }}"
+      state: started
+      restart: yes
+      stop_timeout: "{{ stop_timeout }}"
+      privileged: true
+      docker_api_version: "{{ docker.api_version }}"
+    become: yes
+
+  - name: wait until all bundles are activated
+    aem_bundles_wait_activated:
+      host: "{{ aem_host }}"
+      port: "{{ aem_port }}"
+      aem_username: "{{ aem_username }}"
+      aem_password: "{{ aem_password }}"
+      interval_wait: "{{ interval_wait_all_bundles }}"
+
+  - name: apply the ACE configuration (1/6)
+    uri:
+      url: "http://{{ aem_host }}:{{ aem_port }}/content/projects.deleteAce.html"
+      method: POST
+      user: "{{ aem_username }}"
+      password: "{{ aem_password }}"
+      force_basic_auth: yes
+      body: ":applyTo=wkcda-projects-administrators"
+      status_code: 200
+      return_content: yes
+    register: deleteAce_response
+    until: deleteAce_response|success
+    retries: 120
+    delay: 5
+    tags:
+      - aem-deleteace
+
+  - name: result
+    debug: msg="{{ deleteAce_response.content }}"
+    tags:
+      - aem-deleteace
+
+  - name: apply the ACE configuration (2/6)
+    uri:
+      url: "http://{{ aem_host }}:{{ aem_port }}/system/console/jmx/biz.netcentric.cq.tools:type=ACTool/op/apply/java.lang.String"
+      method: POST
+      user: "{{ aem_username }}"
+      password: "{{ aem_password }}"
+      force_basic_auth: yes
+      body: "configurationRootPath=/apps/netcentric/actool/wkcd/dam/base"
+      status_code: 200
+      return_content: yes
+    register: ACTool_base_response
+    until: ACTool_base_response|success
+    retries: 120
+    delay: 5
+    tags:
+      - aem-actool
+
+  - name: result
+    debug: msg="{{ ACTool_base_response.content }}"
+    tags:
+      - aem-actool
+
+  - name: apply the ACE configuration (3/6)
+    uri:
+      url: "http://{{ aem_host }}:{{ aem_port }}/system/console/jmx/biz.netcentric.cq.tools:type=ACTool/op/apply/java.lang.String"
+      method: POST
+      user: "{{ aem_username }}"
+      password: "{{ aem_password }}"
+      force_basic_auth: yes
+      body: "configurationRootPath=/apps/netcentric/actool/wkcd/dam/common"
+      status_code: 200
+      return_content: yes
+    register: ACTool_common_response
+    until: ACTool_common_response|success
+    retries: 120
+    delay: 5
+    tags:
+      - aem-actool
+
+  - name: result
+    debug: msg="{{ ACTool_common_response.content }}"
+    tags:
+      - aem-actool
+
+  - name: apply the ACE configuration (4/6)
+    uri:
+      url: "http://{{ aem_host }}:{{ aem_port }}/system/console/jmx/biz.netcentric.cq.tools:type=ACTool/op/apply/java.lang.String"
+      method: POST
+      user: "{{ aem_username }}"
+      password: "{{ aem_password }}"
+      force_basic_auth: yes
+      body: "configurationRootPath=/apps/netcentric/actool/wkcd/dam/departments"
+      status_code: 200
+      return_content: yes
+    register: ACTool_departments_response
+    until: ACTool_departments_response|success
+    retries: 120
+    delay: 5
+    tags:
+      - aem-actool
+
+  - name: result
+    debug: msg="{{ ACTool_departments_response.content }}"
+    tags:
+      - aem-actool
+
+  - name: apply the ACE configuration (5/6)
+    uri:
+      url: "http://{{ aem_host }}:{{ aem_port }}/system/console/jmx/biz.netcentric.cq.tools:type=ACTool/op/apply/java.lang.String"
+      method: POST
+      user: "{{ aem_username }}"
+      password: "{{ aem_password }}"
+      force_basic_auth: yes
+      body: "configurationRootPath=/apps/netcentric/actool/wkcd/dam/groups"
+      status_code: 200
+      return_content: yes
+    register: ACTool_groups_response
+    until: ACTool_groups_response|success
+    retries: 120
+    delay: 5
+    tags:
+      - aem-actool
+
+  - name: result
+    debug: msg="{{ ACTool_groups_response.content }}"
+    tags:
+      - aem-actool
+
+  - name: apply the ACE configuration (6/6)
+    uri:
+      url: "http://{{ aem_host }}:{{ aem_port }}/system/console/jmx/biz.netcentric.cq.tools:type=ACTool/op/apply/java.lang.String"
+      method: POST
+      user: "{{ aem_username }}"
+      password: "{{ aem_password }}"
+      force_basic_auth: yes
+      body: "configurationRootPath=/apps/netcentric/actool/wkcd/wcm"
+      status_code: 200
+      return_content: yes
+    register: ACTool_wcm_response
+    until: ACTool_wcm_response|success
+    retries: 120
+    delay: 5
+    tags:
+      - aem-actool
+
+  - name: result
+    debug: msg="{{ ACTool_wcm_response.content }}"
+    tags:
+      - aem-actool
+
+  - name: update i18n label
+    uri:
+      url: "http://{{ aem_host }}:{{ aem_port }}/system/console/bundles/org.apache.sling.i18n"
+      method: POST
+      user: "{{ aem_username }}"
+      password: "{{ aem_password }}"
+      force_basic_auth: yes
+      body: "action=update"
+      status_code: 200
+      return_content: yes
+    register: i18nLabel_response
+    until: i18nLabel_response|success
+    retries: 120
+    delay: 5
+    tags:
+      - aem-i18nLabel
+
+  - name: result
+    debug: msg="{{ i18nLabel_response.content }}"
+    tags:
+      - aem-i18nLabel
+
+- name: author smb mount
+  hosts: author
+  gather_facts: no
+  vars:
+    samba_user: "3app-dam-pro-svc"
+    samba_pass: "3edc%TGB"
+    samba_host: "//10.35.79.11/dam_cifs_INTRIM/2_Ingestion\\040Queue"
+#    samba_host: "//app-a-fs001.wkcda.local/dam_cifs_INTRIM/2_Ingestion\\040Queue"
+  tasks:
+  - name: create smb mount point
+    shell: "docker exec {{ docker_container_name }} bash -c \"{{ item }}\""
+    with_items:
+     - "mkdir -p /mnt/2_Ingestion_Queue"
+    become: yes
+    tags:
+      - aem-mount-samba
+
+  - name: update container's /etc/fstab
+    shell: "docker exec {{ docker_container_name }} bash -c \"{{ item }}\""
+    with_items:
+     - "sed -i '/\\/mnt\\/2_Ingestion_Queue\\//d' /etc/fstab || true"
+     - "echo '{{ samba_host }} /mnt/2_Ingestion_Queue/      cifs     username={{ samba_user }},password={{ samba_pass }},sec=ntlm,dom=wkcda 0 0' >> /etc/fstab"
+    become: yes
+    no_log: true
+    tags:
+      - aem-mount-samba
+
+  - name: create smb mount point
+    shell: "docker exec {{ docker_container_name }} bash -c \"{{ item }}\""
+    with_items:
+     - "mount -a"
+    become: yes
+    ignore_errors: true
+    tags:
+      - aem-mount-samba

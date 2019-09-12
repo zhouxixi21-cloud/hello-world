@@ -1,0 +1,12 @@
+---
+# vars file for .
+
+HOST_PASS: "{{ docker.ca_pass }}"
+HOST_ORG: "{{ docker.ca_org }}"
+HOST_OU: "{{ docker.ca_ou }}"
+HOST_LOC: "{{ docker.ca_loc }}"
+HOST_COUNT: "{{ docker.ca_country }}"
+HOST_STATE: "{{ docker.ca_state }}"
+HOST_AUTH_PATH: "{{ docker.host_auth_path }}"
+HOST_AUTH_USER: "{{ docker.host_auth_user }}"
+HOST_PUBLIC_IP: "{{ inventory_hostname }}"

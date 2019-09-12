@@ -1,0 +1,25 @@
+---
+
+maven_repository_url: http://10.32.64.11:8081/repository/wkcda-maven-plugin
+
+aem_host: 192.168.28.2
+aem_port: 4502
+aem_username: admin
+aem_password: admin
+build_version: 1.0.0-SNAPSHOT
+
+packages:
+  - artifact_id: wkcd-aem-dam-config
+    classifier: "{{ consul_environment }}"
+    group_id: wkcd-aem
+    version: "{{ build_version }}"
+    extension: zip
+    requires_restart: yes
+  - artifact_id: wkcd-aem-dam-content
+    group_id: wkcd-aem
+    version: "{{ build_version }}"
+    extension: zip
+  - artifact_id: wkcd-aem-dam-wcm
+    group_id: wkcd-aem
+    version: "{{ build_version }}"
+    extension: zip

@@ -1,0 +1,86 @@
+---
+- name: test if docker service is running
+  command: systemctl status docker
+  ignore_errors: yes
+  changed_when: false
+  register: docker_status
+  no_log: True
+
+- name: Create temp directory
+  shell: "mktemp -d"
+  register: mktemp
+  tags:
+    - docker-images-build
+    - docker-images-build-nexus
+
+- name: copy docker files
+  synchronize:
+    src: docker/
+    dest: "{{ mktemp.stdout }}"
+  tags:
+    - docker-images-build
+    - docker-images-build-nexus
+
+- name: login to private docker repository
+  docker_login:
+    username: "{{ docker_registry_username }}"
+    password: "{{ docker_registry_password }}"
+    registry: "{{ docker_repository }}"
+    email: "{{ docker_registry_email }}"
+  when: docker_images_push == "yes"
+  become: yes
+  tags:
+    - docker-images-build
+    - docker-images-build-nexus
+
+- name: ensure nexus image is present
+  docker_image:
+    path: "{{ mktemp.stdout }}/nexus/{{ docker_image_tag }}"
+    name: nexus
+    tag: "{{ docker_image_tag }}"
+    state: present
+    force: "{{ docker_images_force }}"
+    push: "{{ docker_images_push }}"
+    pull: "{{ docker_images_pull }}"
+    repository: "{{ docker_repository }}/devops/nexus"
+  become: yes
+  become_method: sudo
+  tags:
+    - docker-images-build
+    - docker-images-build-nexus
+
+- name: Change nexus home owner
+  file:
+    path: "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}"
+    owner: "{{ uid }}"
+    group: "{{ uid }}"
+    state: directory
+    recurse: yes
+  become: yes
+  become_method: sudo
+  tags:
+    - create-nexus-lv
+
+- name: starting nexus container
+  docker_container:
+    name: "{{ docker_container_name }}"
+    image: "{{ docker_repository }}/{{ docker_image }}:{{ docker_image_tag }}"
+    state: started
+    privileged: true
+    published_ports: "{{ docker_published_ports }}"
+    volumes: "{{ docker_volumes }}"
+    env:
+      TZ: "{{ docker.timezone }}"
+      SERVICE_NAME: "{{ consul_service_name }}"
+  become: yes
+  become_method: sudo
+  tags:
+    - docker-containers-nexus
+
+- name: removing temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  tags:
+    - docker-images-build
+    - docker-images-build-nexus

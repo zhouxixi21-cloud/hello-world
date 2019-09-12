@@ -1,0 +1,17 @@
+---
+# file: group_vars/esb
+
+docker:
+  api_version: 1.22
+  timezone: "Asia/Hong_Kong"
+
+docker_container_name: esb
+docker_volume_driver: local
+
+docker_volumes:
+  - "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}-logs:/opt/mule/logs"
+
+container_esb_host_ip: 0.0.0.0
+container_esb_host_port: 8280
+
+volume_info: []

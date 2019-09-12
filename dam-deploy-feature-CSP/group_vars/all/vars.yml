@@ -1,0 +1,26 @@
+---
+# file: group_vars/all
+
+global_timezone: "Asia/Hong_Kong"
+
+docker_api_version: "1.22"
+
+docker:
+  host_auth_path: "/root/registry.htpasswd"
+  host_auth_user: "admin"
+  host_auth_backup_path: "/root"
+  host_auth_backup_prefix: "vm-htpasswd"
+  ca_path: "/root/ca"
+  ca_pass: "3q_*KBH%^gKh8;=.::rn"
+  ca_org: "wkcd"
+  ca_ou: "dev"
+  ca_loc: "HK"
+  ca_country: "HK"
+  ca_state: "HK"
+  ca_backup_path: "/root"
+  ca_backup_prefix: "vm-ca"
+  config_path: "/root/.docker"
+  timezone: "{{ global_timezone|default('Asia/Hong_Kong') }}"
+  api_version: "1.22"
+
+docker_volume_basepath: "/var/lib/rancher/convoy/devicemapper/mounts/"

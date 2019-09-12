@@ -1,0 +1,11 @@
+---
+# file: localdev.yml
+
+- hosts: localvmhostNet1
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - common
+    - docker-host
+    - localdev

@@ -1,0 +1,13 @@
+---
+
+- name: redhat subscription register  #需要 subscription-manager  ,没有就  yum install subscription-manager
+  redhat_subscription:
+    state: present
+    username: "{{ redhat_network_username }}"
+    password: "{{ redhat_network_password }}"
+    autosubscribe: true
+    force_register: true
+  become: yes
+  tags:
+    - redhat-subscription
+    - redhat-subscription-register

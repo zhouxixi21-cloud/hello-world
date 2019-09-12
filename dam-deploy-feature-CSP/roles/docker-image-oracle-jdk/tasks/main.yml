@@ -1,0 +1,43 @@
+---
+
+- name: Create temp directory
+  shell: "mktemp -d"
+  register: mktemp
+  tags:
+    - docker-images-build
+
+- name: copy docker oracle jdk files
+  synchronize:
+    src: docker/
+    dest: "{{ mktemp.stdout }}"
+  tags:
+    - docker-images-build
+    - docker-images-build-oracle-jdk
+
+- name: build oracle jdk image
+  docker_image:
+    name: devops/oracle-jdk
+    path: "{{ mktemp.stdout }}/oracle-jdk/{{ docker_oracle_jdk_tag }}"
+    tag: "{{ docker_oracle_jdk_tag }}"
+    state: present
+    force: "{{ docker_images_force }}"
+    push: "{{ docker_images_push }}"
+    pull: "{{ docker_images_pull }}"
+    repository: "{{ docker_repository }}/devops/oracle-jdk"
+    docker_api_version: "{{ docker.api_version }}"
+    buildargs:
+      JDK_DOWNLOAD_URL: "{{ oracle_jdk_rpm_url }}"
+  become: yes
+  become_method: sudo
+  tags:
+    - docker-images-build
+    - docker-images-build-oracle-jdk
+
+- name: removing temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  when: mktemp is defined
+  tags:
+    - docker-images-build
+    - docker-images-build-oracle-jdk

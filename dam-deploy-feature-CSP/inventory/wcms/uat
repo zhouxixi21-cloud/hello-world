@@ -1,0 +1,49 @@
+# file: uat
+
+###########################
+# HOSTS
+###########################
+
+[docker.host]
+10.72.28.70 AUTHOR_IP=0.0.0.0 AUTHOR_CACHE_IP=10.72.28.71 PUBLISH_IP=0.0.0.0 PUBLISH_CACHE_IP=10.72.28.73 MGT_IP=10.72.28.74 public_ip=103.5.79.19 author_cq_runmode="author,crx3,crx3tar,uat,ldap,stack-local,nosamplecontent" author_cq_jvm_opts="-server -Xms8196m -Xmx12288m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true" publish_cq_runmode="publish,crx3,crx3tar,uat,stack-local,nosamplecontent" publish_cq_jvm_opts="-server -Xms1024m -Xmx1024m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+###########################
+# SERVICE TO HOST MAP
+###########################
+
+
+[dockerhost:children]
+docker.host
+
+[sshhost:children]
+docker.host
+
+[esb:children]
+docker.host
+
+[management:children]
+docker.host
+
+[management_buildhost:children]
+docker.host
+
+[management_cahost:children]
+docker.host
+
+[management_control:children]
+docker.host
+
+[management_registry:children]
+docker.host
+
+[author:children]
+docker.host
+
+[author_dispatcher:children]
+docker.host
+
+[publisher:children]
+docker.host
+
+[publisher_dispatcher:children]
+docker.host

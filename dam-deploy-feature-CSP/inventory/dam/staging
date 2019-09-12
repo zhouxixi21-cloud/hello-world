@@ -1,0 +1,60 @@
+# file: staging
+
+###########################
+# HOSTS
+###########################
+
+[applications]
+DAM-L-ST002.wkcda.local ansible_host=10.32.170.15
+DAM-L-ST003.wkcda.local ansible_host=10.32.170.16
+DAM-L-ST004.wkcda.local ansible_host=10.32.100.100
+DAM-L-ST005.wkcda.local ansible_host=10.32.100.101
+DAM-L-ST007.wkcda.local ansible_host=10.32.100.103
+
+[consul-server]
+consul01.dam.wkcda.local ansible_host=10.32.170.15 docker_dns_servers=10.32.170.15 consul_opts_extra='-bootstrap-expect 1'
+consul02.dam.wkcda.local ansible_host=10.32.170.16 docker_dns_servers=10.32.170.16 consul_opts_extra='-bootstrap-expect 1'
+consul04.dam.wkcda.local ansible_host=10.32.100.101 consul_opts_extra='-bootstrap-expect 2'
+consul06.dam.wkcda.local ansible_host=10.32.100.103 consul_opts_extra='-retry-join 10.32.100.101'
+
+[consul-client]
+consul03.dam.wkcda.local ansible_host=10.32.100.100
+
+[author]
+author01.staging.dam.wkcda.local ansible_host=10.32.100.100 rsync_src_host=10.72.28.100 aem_jvm_opts="-server -Xms4096m -Xmx57344m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[publisher]
+publisher01.dam.wkcda.local ansible_host=10.32.170.15 rsync_src_host=10.72.28.98 docker_dns_servers=10.32.170.15 aem_jvm_opts="-server -Xms2048m -Xmx4096m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+publisher02.dam.wkcda.local ansible_host=10.32.170.16 rsync_src_host=10.72.28.99 docker_dns_servers=10.32.170.16 aem_jvm_opts="-server -Xms2048m -Xmx4096m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[dispatcher]
+
+[dispatcher-publish]
+dispatcher02.dam.wkcda.local ansible_host=10.32.170.15 docker_dns_servers=10.32.170.15 service_cert_hostname='dam-stg.westkowloon.hk'
+dispatcher03.dam.wkcda.local ansible_host=10.32.170.16 docker_dns_servers=10.32.170.16 service_cert_hostname='dam-stg.westkowloon.hk'
+
+[esb]
+esb01.dam.wkcda.local ansible_host=10.32.100.101 rsync_src_host=10.72.28.101 esb_wrapper_initmemory=4096m esb_wrapper_maxmemory=28672m
+
+[processing]
+
+[solr]
+solr01.dam.wkcda.local ansible_host=10.32.170.15 rsync_src_host=10.72.28.98 docker_dns_servers=10.32.170.15
+solr02.dam.wkcda.local ansible_host=10.32.170.16 rsync_src_host=10.72.28.99 docker_dns_servers=10.32.170.16
+solr03.dam.wkcda.local ansible_host=10.32.100.103 rsync_src_host=10.72.28.103 solr_jvm_heap=40g
+
+###########################
+# SERVICE TO SERVER MAP
+###########################
+
+[staging:children]
+applications
+consul-server
+consul-client
+author
+dispatcher
+publisher
+dispatcher-publish
+processing
+solr
+esb

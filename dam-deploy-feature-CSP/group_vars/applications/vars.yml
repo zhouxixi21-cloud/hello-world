@@ -1,0 +1,140 @@
+---
+
+docker:
+  api_version: 1.22
+  timezone: "Asia/Hong_Kong"
+
+docker_registry_username: admin                                 # parameter for 'docker login --username'
+docker_registry_password: admin123                              # parameter for 'docker login --password'
+docker_registry_email: devops@wkcda.hk
+
+consul_bind_ip: "{{ ansible_host }}"
+
+convoy_device_data: /dev/rhel/convoy_data
+convoy_device_meta: /dev/rhel/convoy_meta
+convoy_device_data_size: 200g
+convoy_device_meta_size: 500m
+convoy_device_data_alloc: "80%VG"
+
+#iptable:
+#  rules:
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 5000     # Nexus
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8081     # Nexus
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 4522     # Processing
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 4502     # Author
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 5433     # Author SSL
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 4503     # Publisher
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8280     # ESB
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 80     # Dispatcher
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 443     # Dispatcher SSL
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8080     # Jenkins
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 53     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: udp
+#      match: udp
+#      port: 53     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8300     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8301     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: udp
+#      match: udp
+#      port: 8301     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8302     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: udp
+#      match: udp
+#      port: 8302     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8500     # Consul
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 50000     # Jenkins
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8983     # Solr
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 9983     # Solr
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 4243     # Dockerd
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 8089     # Splunk Universal Forwarder (poll deployment server)
+#      jump_target: ACCEPT
+#    - chain: INPUT
+#      protocol: tcp
+#      match: tcp
+#      port: 9997     # Splunk Universal Forwarder (send log to indexer)
+#      jump_target: ACCEPT

@@ -1,0 +1,9 @@
+---
+# file: group_vars/toughday
+
+docker:
+  api_version: 1.22
+  timezone: "Asia/Hong_Kong"
+
+maven:
+  repository_url: http://10.72.76.85:8081/repository/maven-public/

@@ -1,0 +1,57 @@
+---
+
+- include: docker-image-build-mule-esb.yml
+
+- name: starting muleesb container
+  docker_container:
+    name: "{{ docker_container_name }}"
+    image: "{{ docker_repository }}/{{ docker_image }}:{{ esb_package_version }}"
+    state: started
+    volumes: "{{ docker_volumes }}"
+    volume_driver: "{{ docker_volume_driver }}"
+    docker_api_version: "{{ docker.api_version }}"
+    published_ports: "{{ docker_published_ports }}"
+    network_mode: "{{ docker_network_mode }}"
+    networks: "{{ docker_network_name }}"
+    dns_servers: "{{ docker_dns_servers }}"
+    privileged: true
+    env:
+      TZ: "{{ docker.timezone }}"
+      SERVICE_TAGS: "{{ consul_environment }}"
+      SERVICE_NAME: "{{ consul_service_name }}"
+      ASSET_PATH: "/mnt/TMS_to_DAM/asset"
+      INBOX_FOLDER: "/mnt/TMS_to_DAM/input"
+      OUTBOX_FOLDER: "/mnt/DAM_to_TMS"
+      ROOT_PATH: "/content/dam"
+      CATEGORY_PATH: "/etc/tags/wkcd-dam/classification"
+      AUTHOR_PATH: "/etc/tags/wkcd-dam/authors"
+      RIGHT_PATH: "/etc/tags/wkcd-dam/rights"
+      AEM_HOST: "{{ aem_host }}"
+      AEM_PORT: "{{ aem_port }}"
+      AEM_USERNAME: "{{ aem_username }}"
+      AEM_PASSWORD: "{{ aem_password }}"
+      AEM_BASEPATH: "http://{{ aem_host }}:{{ aem_port }}"
+      AEM_TRAINGDIR_IN: "/esb/microsoft_training_data/in/"
+      AEM_TRAINGDIR_DONE: "/esb/microsoft_training_data/done/"
+      AEM_TRAINGDIR_ERROR: "/esb/microsoft_training_data/error/"
+      AEM_TMPDIR: "/esb/microsoft_training_data/tmp/"
+      MICROSFT_HOST: "eastasia"
+      MICROSFT_ANALYZE_API_KEY: "{{ microsoft_analyze_api_key }}"
+      MICROSFT_FACE_API_KEY: "{{ microsoft_face_api_key }}"
+      MICROSFT_ANALYZE_CONFIDENCE: "{{ microsoft_analyze_confidence }}"
+      GOOGLE_API_KEY: "{{ google_api_key }}"
+  become: yes
+  tags:
+    - docker-containers
+    - docker-containers-muleesb
+
+- name: configuring ESB
+  shell: "docker exec {{ docker_container_name }} bash -c \"{{ item }}\""
+  with_items:
+   - "sed -i \"s/wrapper.java.initmemory=1024/wrapper.java.initmemory=0/g\" /opt/mule/conf/wrapper.conf"
+   - "sed -i \"s/wrapper.java.maxmemory=1024/wrapper.java.maxmemory=0/g\" /opt/mule/conf/wrapper.conf"
+   - "grep -q -F 'wrapper.java.additional.16=-Xmx{{ esb_wrapper_maxmemory }}' /opt/mule/conf/wrapper.conf || echo 'wrapper.java.additional.16=-Xmx{{ esb_wrapper_maxmemory }}' >> /opt/mule/conf/wrapper.conf"
+   - "grep -q -F 'wrapper.java.additional.17=-Xms{{ esb_wrapper_initmemory }}' /opt/mule/conf/wrapper.conf || echo 'wrapper.java.additional.17=-Xms{{ esb_wrapper_initmemory }}' >> /opt/mule/conf/wrapper.conf"
+  become: yes
+  tags:
+    - configure-muleesb

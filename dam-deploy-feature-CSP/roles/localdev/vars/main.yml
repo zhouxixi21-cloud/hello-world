@@ -1,0 +1,15 @@
+---
+# vars file for .
+
+
+
+localserver_eth0_path: "/etc/sysconfig/network-scripts/ifcfg-eth0"
+localserver_eth1_path: "/etc/sysconfig/network-scripts/ifcfg-eth1"
+localserver_eth2_path: "/etc/sysconfig/network-scripts/ifcfg-eth2"
+localserver_netconfig_path: "/etc/sysconfig/network"
+localserver_eth1_name: "eth1"
+localserver_eth2_name: "eth2"
+localserver_hostname: "rhel7-dev-local"
+localserver_host_ip: "192.168.28.2"
+
+

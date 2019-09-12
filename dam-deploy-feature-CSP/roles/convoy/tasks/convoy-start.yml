@@ -1,0 +1,43 @@
+---
+
+  # Ansible issue #3764
+- name: service convoy enabled off
+  systemd:
+    name: convoy
+    enabled: no
+  become: yes
+  tags:
+    - convoy-start
+    - convoy-install
+
+- name: service start convoy
+  systemd:
+    name: convoy
+    daemon_reload: yes
+    enabled: yes
+    state: started
+  become: yes
+  tags:
+    - convoy-start
+    - convoy-install
+
+- name: configure convoy CmdTimeout
+  replace:
+    path: /var/lib/rancher/convoy/convoy.cfg
+    regexp: '"CmdTimeout":""'
+    replace: '"CmdTimeout":"5m"'
+  become: yes
+  tags:
+    - convoy-start
+    - convoy-install
+
+- name: service restart convoy
+  systemd:
+    name: convoy
+    daemon_reload: yes
+    enabled: yes
+    state: restarted
+  become: yes
+  tags:
+    - convoy-start
+    - convoy-install

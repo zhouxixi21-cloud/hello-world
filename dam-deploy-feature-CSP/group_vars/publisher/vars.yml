@@ -1,0 +1,34 @@
+---
+# file: group_vars/publisher
+
+docker_image_tag: 1.3                                       # Latest aem base image to build and run
+docker_image_tag_aem: 1.4                                   # Latest aem image to build and run
+docker_image: aem-publisher                                 # AEM Docker Image to run publisher containers
+
+aem_host: "{{ ansible_host }}"
+aem_port: 4503
+service_publisher_username: "admin"
+service_publisher_password: "admin"
+aem_username: "{{ service_publisher_username }}"
+aem_password: "{{ service_publisher_password }}"
+
+consul_service_name: publisher
+
+docker_network_mode: bridge
+docker_network_name:
+  - name: bridge
+  - name: "{{ consul_network_name }}"
+
+docker_volume_driver: local
+docker_volumes:
+  - "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}:/aem/crx-quickstart"
+  - "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}-datastore:/aem/datastore"
+  - "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}-tmp:/tmp"
+
+volume_info: []
+
+aem_runmode: "publish,{{ consul_environment }},nosamplecontent"
+
+include: aem-packages-files.yml
+
+stop_timeout: 3600

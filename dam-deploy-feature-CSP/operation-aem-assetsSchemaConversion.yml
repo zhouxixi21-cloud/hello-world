@@ -1,0 +1,16 @@
+---
+
+- name: Assets schema conversion playbook
+  hosts: author
+  strategy: free
+  gather_facts: no
+  vars:
+    aem_host: "{{ ansible_host }}"
+    interval_wait_all_bundles: 30
+
+  tasks:
+
+  - include_role:
+     name: aem-assets-schema-conversion
+    tags:
+      - aem-assets-schema-conversion

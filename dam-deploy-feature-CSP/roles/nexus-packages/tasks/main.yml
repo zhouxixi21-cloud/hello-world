@@ -1,0 +1,61 @@
+---
+
+- name: creating a temporary working directory
+  tempfile:
+    state: directory
+  register: working_dir
+  notify:
+    - cleanup nexus packages
+    - wait until all bundles are activated
+  tags:
+    - nexus-packages-download
+
+- name: downloading maven artifacts from repository
+  maven_artifact:
+    artifact_id: "{{ item.artifact_id }}"
+    group_id: "{{ item.group_id }}"
+    repository_url: "{{ maven_repository_url }}"
+    version: "{{ item.version }}"
+    extension: "{{ item.extension }}"
+    classifier: "{{ item.classifier|default('') }}"
+    dest: "{{ working_dir.path }}"
+  with_items: "{{ packages }}"
+  tags:
+    - nexus-packages-download
+
+- name: wait until all bundles are activated
+  aem_bundles_wait_activated:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+    interval_wait: "{{ interval_wait_all_bundles }}"
+
+- name: aem upload packages
+  aem_upload_package:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    group_name: "{{ item.group_id }}"
+    package_name: "{{ item.artifact_id }}"
+    package_version: "{{ item.version }}"
+    file_path: "{{ working_dir.path }}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+    force: yes
+  with_items: "{{ packages }}"
+
+- name: aem install packages
+  aem_install_package:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    group_name: "{{ item.group_id }}"
+    package_name: "{{ item.artifact_id }}"
+    package_version: "{{ item.version }}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+    requires_restart: "{{ item.requires_restart | default('no') }}"
+  with_items: "{{ packages }}"
+  register: result
+  until: result|success
+  retries: 180
+  delay: 5

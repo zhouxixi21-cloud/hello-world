@@ -1,0 +1,5 @@
+---
+# vars file for .
+
+redhat_network_username: "WKCDAProject1b"
+redhat_network_password: "WKCDA!234"

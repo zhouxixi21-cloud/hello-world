@@ -1,0 +1,31 @@
+---
+
+- name: start docker container consul client
+  docker_container:
+    name: "{{ docker_container_name }}"
+    image: "{{ docker_image }}:{{ docker_image_tag }}"
+    state: started
+    privileged: true
+    volume_driver: "{{ docker_volume_driver }}"
+    volumes: "{{ docker_volumes }}"
+    docker_api_version: "{{ docker.api_version }}"
+    dns_servers: "{{ docker_dns_servers }}"
+    command: "consul agent -data-dir /consul/data -node {{ consul_bind_ip }} -advertise={{ consul_bind_ip }} -bind=0.0.0.0 -client=0.0.0.0 {{ consul_opts }}"
+    recreate: "{{ docker_recreate }}"
+    published_ports:
+    - "{{ consul_bind_ip }}:53:8600/tcp"
+    - "{{ consul_bind_ip }}:53:8600/udp"
+    - "{{ consul_bind_ip }}:8300:8300/tcp"
+    - "{{ consul_bind_ip }}:8301:8301/tcp"
+    - "{{ consul_bind_ip }}:8301:8301/udp"
+    - "{{ consul_bind_ip }}:8302:8302/tcp"
+    - "{{ consul_bind_ip }}:8302:8302/udp"
+    - "{{ consul_bind_ip }}:8400:8400/tcp"
+    - "{{ consul_bind_ip }}:8500:8500/tcp"
+    env:
+      TZ: "{{ docker.timezone }}"
+      CONSUL_RPC_ADDR: "0.0.0.0:8400"
+  become: yes
+  tags:
+    - docker-containers
+    - docker-containers-consul-client

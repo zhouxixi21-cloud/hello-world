@@ -1,0 +1,4 @@
+---
+
+- name: configuring server groups
+  include: configure-groups.yml

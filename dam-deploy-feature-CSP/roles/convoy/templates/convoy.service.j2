@@ -1,0 +1,9 @@
+[Unit]
+Description=Convoy daemon Docker volume plugin
+PartOf=docker.service
+
+[Service]
+ExecStart=/usr/bin/convoy daemon --drivers devicemapper --driver-opts dm.datadev={{ convoy_device_data }} --driver-opts dm.metadatadev={{ convoy_device_meta }} --driver-opts dm.fs={{ convoy_filesystem }} --driver-opts dm.defaultvolumesize={{ convoy_defaultvolumesize }}
+
+[Install]
+WantedBy=multi-user.target docker.service

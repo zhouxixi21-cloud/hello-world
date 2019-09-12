@@ -1,0 +1,6 @@
+---
+
+aem_host: "{{ aem_bridge_host.stdout }}"
+aem_port: "{{ aem_port }}"
+aem_workflow_config_package_name: aem-configure-workflow
+aem_workflow_config_package_version: 1.0.0

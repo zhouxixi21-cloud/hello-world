@@ -1,0 +1,12 @@
+---
+
+- name: redhat subscription unregister
+  redhat_subscription:
+    state: absent
+  tags:
+    - redhat-subscription
+    - redhat-subscription-unregister
+
+#subscription-manager remove --all
+#subscription-manager unregister
+#subscription-manager clean

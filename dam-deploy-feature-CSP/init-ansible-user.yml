@@ -1,0 +1,19 @@
+---
+
+- name: wkcda dam common playbook
+  hosts: applications
+  strategy: free
+
+  vars:
+    ansible_connection: ssh
+    ansible_user: root
+    ansible_ssh_pass: "wkcdP@ssw0rd"
+
+  pre_tasks: []
+
+  roles:
+  - role: common
+
+  post_tasks: []
+
+  handlers: []

@@ -1,0 +1,10 @@
+---
+
+docker_image_tag: 1.1                                                  # Docker image tag for docker build and docker run
+
+##  Docker repository usage
+docker_images_pull: no
+docker_images_push: no                                                 # using docker in isolation by default. set to yes to push to private registry.
+docker_images_force: yes                                               # rebuild all docker images by default.
+
+docker_repository: 0.0.0.0:5000                                        # Docker registry to push and pull images from

@@ -1,0 +1,48 @@
+---
+
+- name: create temp directory
+  tempfile:
+    state: directory
+  register: temp_dir
+
+- name: copy json files
+  synchronize:
+    src: json/
+    dest: "{{ temp_dir.path }}"
+
+- name: wait until all bundles are activated
+  aem_bundles_wait_activated:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+    interval_wait: "{{ interval_wait_all_bundles }}"
+
+- name: convert schema
+  shell: "curl -u {{ aem_username }}:{{ aem_password }} -X POST -F 'rootpath={{ rootpath }}' -F data=@{{ temp_dir.path }}/{{ item }} -F 'convert=true' http://{{ aem_host }}:{{ aem_port }}/services/wkcd/schemaconversion"
+  with_sequence: start="{{ schemamap_start_version }}" end="{{ schemamap_target_version }}" format="{{ schemamap_artifact_id }}%01x.{{ schemamap_extension }}"
+  register: schemaconversion_response
+
+#- name: apply schema
+#  uri:
+#    url: "http://{{ aem_host }}:{{ aem_port }}/services/wkcd/schemaconversion"
+#    method: POST
+#    user: "{{ aem_username }}"
+#    password: "{{ aem_password }}"
+#    force_basic_auth: yes
+#    body: "rootpath={{ rootpath }}&data=@{{ temp_dir.path }}/{{ item }}&convert=true"
+#    status_code: 200
+#    return_content: yes
+#  register: schemaconversion_response
+#  with_sequence: start="{{ schemamap_start_version }}" end="{{ schemamap_target_version }}" format="{{ schemamap_artifact_id }}%01x.{{ schemamap_extension }}"
+
+- name: result
+  debug: var="{{ item }}"
+  with_items: "{{ schemaconversion_response.results }}"
+  loop_control:
+    label: "{{ item.stdout_lines }}"
+
+- name: removing temp directory
+  file:
+    name: "{{ temp_dir.path }}"
+    state: absent

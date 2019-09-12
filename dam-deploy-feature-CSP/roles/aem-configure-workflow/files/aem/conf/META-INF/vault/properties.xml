@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>FileVault Package Properties</comment>
+<entry key="name">aem-configure-workflow</entry>
+<entry key="version">1.0.0</entry>
+<entry key="description">AEM Workflow Config Package</entry>
+<entry key="group">aem_config</entry>
+</properties>

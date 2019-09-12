@@ -1,0 +1,155 @@
+---
+
+- name: wkcda dam dispatcher author role
+  hosts: dispatcher
+  pre_tasks:
+    - include_role:
+        name: docker-login
+
+  roles:
+    - role: dispatcher
+
+  tasks:
+    - name: Configure permission of dispatcher author container volume
+      file:
+        path: "{{ docker_volume_basepath }}/{{ docker_container_name }}"
+        state: directory
+        mode: 0755
+        owner: apache
+        group: apache
+      become: yes
+      tags:
+        - docker-containers
+        - docker-containers-dispatcher-author
+
+    - name: start docker container dispatcher author
+      docker_container:
+        name: "{{ docker_container_name }}"
+        image: "{{ docker_repository }}/{{ docker_image }}:{{ docker_image_tag }}"
+        state: started
+        restart: yes
+        docker_api_version: "{{ docker.api_version }}"
+        dns_servers: "{{ docker_dns_servers }}"
+        privileged: true
+        volumes: "{{ docker_volumes }}"
+        volume_driver: "{{ docker_volume_driver }}"
+        published_ports: "{{ docker_published_ports }}"
+        recreate: yes
+        restart_policy: unless-stopped
+        network_mode: "{{ docker_network_mode }}"
+        networks: "{{ docker_network_name }}"
+        env:
+          TZ: "{{ docker.timezone }}"
+          DISPATCHER_NAME: "{{ dispatcher_name }}"
+          RENDER_HOSTNAME: "{{ ansible_host }}"
+          RENDER_PORT: "{{ render_port }}"
+          SERVICE_TAGS: "{{ consul_environment }}"
+          SERVICE_NAME: "{{ consul_service_name }}"
+          SERVICE_8080_NAME: "{{ consul_service_name }}"
+          SERVICE_8443_NAME: "{{ consul_service_name }}"
+      become: yes
+      tags:
+        - docker-containers
+        - docker-containers-dispatcher-author
+
+- name: wkcda dam dispatcher publish role
+  hosts: dispatcher-publish
+
+  roles:
+    - role: dispatcher
+
+  tasks:
+  - name: Configure permission of dispatcher publish container volume
+    file:
+      path: "{{ docker_volume_basepath }}/{{ docker_container_name }}"
+      state: directory
+      mode: 0755
+      owner: apache
+      group: apache
+    become: yes
+    tags:
+      - docker-containers
+      - docker-containers-dispatcher-publish
+
+  - name: start docker container dispatcher publish
+    docker_container:
+      name: "{{ docker_container_name }}"
+      image: "{{ docker_repository }}/{{ docker_image }}:{{ docker_image_tag }}"
+      state: started
+      restart: yes
+      docker_api_version: "{{ docker.api_version }}"
+      dns_servers: "{{ docker_dns_servers }}"
+      privileged: true
+      volumes: "{{ docker_volumes }}"
+      volume_driver: "{{ docker_volume_driver }}"
+      published_ports: "{{ docker_published_ports }}"
+      recreate: yes
+      restart_policy: unless-stopped
+      network_mode: "{{ docker_network_mode }}"
+      networks: "{{ docker_network_name }}"
+      env:
+        TZ: "{{ docker.timezone }}"
+        DISPATCHER_NAME: "{{ dispatcher_name }}"
+        RENDER_HOSTNAME: "{{ ansible_host }}"
+        RENDER_PORT: "{{ render_port }}"
+        SERVICE_TAGS: "{{ consul_service_tags }}"
+        SERVICE_NAME: "{{ consul_service_name }}"
+        SERVICE_8080_NAME: "{{ consul_service_name }}"
+        SERVICE_8443_NAME: "{{ consul_service_name }}"
+        CONFIG_PATH: "/dispatcher/httpd/conf"
+        STICKY_CONN_PATH: "/"
+        CERT_HOSTNAME: "{{ cert_hostname }}"
+    become: yes
+    tags:
+      - docker-containers
+      - docker-containers-dispatcher-publish
+
+  - name: move config to external volume
+    shell: "docker exec {{ docker_container_name }} bash -c \"{{ item }}\""
+    with_items:
+     - "if [ ! -d /data/httpd/conf ]; then mkdir -p /data/httpd/conf && cp -R /dispatcher/httpd/conf/* /data/httpd/conf; fi"
+    become: yes
+    tags:
+      - docker-containers
+      - docker-containers-dispatcher-publish
+
+#  - name: Generate self-signed key
+#    shell: "docker exec {{ docker_container_name }} bash -c \"{{ item }}\""
+#    with_items:
+#     - "[ -f /data/httpd/conf/certs/SSLCertificateFile.crt ] || openssl req -nodes -new -x509 -days 1095 -keyout SSLCertificateKeyFile.key -out SSLCertificateFile.crt -subj '/CN=dam-dispatcher'"
+#    become: yes
+#    tags:
+#      - dispatcher-publish-ssl
+
+  - name: start docker container dispatcher publish
+    docker_container:
+      name: "{{ docker_container_name }}"
+      image: "{{ docker_repository }}/{{ docker_image }}:{{ docker_image_tag }}"
+      state: started
+      restart: yes
+      docker_api_version: "{{ docker.api_version }}"
+      dns_servers: "{{ docker_dns_servers }}"
+      privileged: true
+      volumes: "{{ docker_volumes }}"
+      volume_driver: "{{ docker_volume_driver }}"
+      published_ports: "{{ docker_published_ports }}"
+      recreate: yes
+      restart_policy: unless-stopped
+      network_mode: "{{ docker_network_mode }}"
+      networks: "{{ docker_network_name }}"
+      env:
+        TZ: "{{ docker.timezone }}"
+        DISPATCHER_NAME: "{{ dispatcher_name }}"
+        RENDER_HOSTNAME: "{{ ansible_host }}"
+        RENDER_PORT: "{{ render_port }}"
+        SERVICE_TAGS: "{{ consul_service_tags }}"
+        SERVICE_NAME: "{{ consul_service_name }}"
+        SERVICE_8080_NAME: "{{ consul_service_name }}"
+        SERVICE_8443_NAME: "{{ consul_service_name }}"
+        CONFIG_PATH: "/data/httpd/conf"
+        STICKY_CONN_PATH: "/"
+        CERT_HOSTNAME: "{{ cert_hostname }}"
+    become: yes
+    tags:
+      - docker-containers
+      - docker-containers-dispatcher-publish

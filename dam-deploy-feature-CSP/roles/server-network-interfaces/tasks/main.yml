@@ -1,0 +1,5 @@
+---
+
+- name: network interfaces adding connections
+  include: network-interfaces-add.yml
+  with_items: "{{ network_interfaces }}"

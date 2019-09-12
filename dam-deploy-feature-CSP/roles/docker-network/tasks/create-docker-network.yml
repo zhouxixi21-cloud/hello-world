@@ -1,0 +1,12 @@
+---
+
+- name: create docker network
+  docker_network:
+    name: "{{ consul_network_name }}"
+    appends: yes  
+    driver: "{{ docker_consul_net_driver }}"   #指定网络类型
+    ipam_options: "{{ docker_ipam_options }}"  #ipam配置列表
+    docker_api_version: "{{ docker.api_version }}"
+  become: yes
+  tags:
+    - docker-networks-create

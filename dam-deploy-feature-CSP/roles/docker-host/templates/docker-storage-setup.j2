@@ -1,0 +1,10 @@
+# /etc/sysconfig/docker-storage-setup
+# Managed by Ansible.
+
+VG=vg1
+SETUP_LVM_THIN_POOL=yes
+GROWPART=true
+AUTO_EXTEND_POOL=yes
+POOL_AUTOEXTEND_THRESHOLD=70
+POOL_AUTOEXTEND_PERCENT=20
+DATA_SIZE=15G

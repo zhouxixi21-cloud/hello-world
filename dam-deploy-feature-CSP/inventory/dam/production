@@ -1,0 +1,60 @@
+# file: production
+
+###########################
+# HOSTS
+###########################
+
+[applications]
+DAM-L-AP002.wkcda.local ansible_host=10.32.170.13 splunk_deploymentserver='10.35.91.174:8089'
+DAM-L-AP003.wkcda.local ansible_host=10.32.170.14 splunk_deploymentserver='10.35.91.174:8089'
+DAM-L-AP004.wkcda.local ansible_host=10.32.64.93 splunk_deploymentserver='10.35.91.174:8089'
+DAM-L-AP005.wkcda.local ansible_host=10.32.64.94 splunk_deploymentserver='10.35.91.174:8089'
+DAM-L-AP007.wkcda.local ansible_host=10.32.64.96 splunk_deploymentserver='10.35.91.174:8089'
+
+[consul-server]
+consul01.dam.wkcda.local ansible_host=10.32.170.13 docker_dns_servers=10.32.170.13 consul_opts_extra='-bootstrap-expect 1'
+consul02.dam.wkcda.local ansible_host=10.32.170.14 docker_dns_servers=10.32.170.14 consul_opts_extra='-bootstrap-expect 1'
+consul04.dam.wkcda.local ansible_host=10.32.64.94 consul_opts_extra='-bootstrap-expect 2'
+consul06.dam.wkcda.local ansible_host=10.32.64.96 consul_opts_extra='-retry-join 10.32.64.94'
+
+[consul-client]
+consul03.dam.wkcda.local ansible_host=10.32.64.93
+
+[author]
+author01.production.dam.wkcda.local ansible_host=10.32.64.93 rsync_src_host=10.72.28.93 aem_jvm_opts="-server -Xms4096m -Xmx57344m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[publisher]
+publisher01.dam.wkcda.local ansible_host=10.32.170.13 rsync_src_host=10.72.28.91 docker_dns_servers=10.32.170.13 aem_jvm_opts="-server -Xms4096m -Xmx24576m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+publisher02.dam.wkcda.local ansible_host=10.32.170.14 rsync_src_host=10.72.28.92 docker_dns_servers=10.32.170.14 aem_jvm_opts="-server -Xms4096m -Xmx24576m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[dispatcher]
+
+[dispatcher-publish]
+dispatcher02.dam.wkcda.local ansible_host=10.32.170.13 docker_dns_servers=10.32.170.13 service_cert_hostname='dam.westkowloon.hk'
+dispatcher03.dam.wkcda.local ansible_host=10.32.170.14 docker_dns_servers=10.32.170.14 service_cert_hostname='dam.westkowloon.hk'
+
+[esb]
+esb01.dam.wkcda.local ansible_host=10.32.64.94 rsync_src_host=10.72.28.94 esb_wrapper_initmemory=4096m esb_wrapper_maxmemory=28672m
+
+[processing]
+
+[solr]
+solr01.dam.wkcda.local ansible_host=10.32.170.13 rsync_src_host=10.72.28.91 docker_dns_servers=10.32.170.13
+solr02.dam.wkcda.local ansible_host=10.32.170.14 rsync_src_host=10.72.28.92 docker_dns_servers=10.32.170.14
+solr03.dam.wkcda.local ansible_host=10.32.64.96 rsync_src_host=10.72.28.96 solr_jvm_heap=40g
+
+###########################
+# SERVICE TO SERVER MAP
+###########################
+
+[production:children]
+applications
+consul-server
+consul-client
+author
+dispatcher
+publisher
+dispatcher-publish
+processing
+solr
+esb

@@ -1,0 +1,16 @@
+---
+
+- name: check if volume exists
+  shell: "docker volume inspect {{ convoy_volume_name }}"
+  register: volume_exists
+  failed_when: false
+  become: yes
+
+- name: create volume
+  shell: "convoy create {{ convoy_volume_name }}"
+  when: volume_exists|failed
+  become: yes
+
+- name: mount volume
+  shell: "convoy mount {{ convoy_volume_name }}"
+  become: yes

@@ -1,0 +1,49 @@
+# file: sit
+
+###########################
+# HOSTS
+###########################
+
+[applications]
+DAM-L-SI002.wkcda.local ansible_host=10.32.171.17
+DAM-L-SI004.wkcda.local ansible_host=10.33.74.69
+
+[consul-server]
+consul01.dam.wkcda.local ansible_host=10.32.171.17 consul_opts_extra='-ui -bootstrap-expect 1'
+consul02.dam.wkcda.local ansible_host=10.33.74.69 consul_opts_extra='-ui -bootstrap-expect 1'
+
+[consul-client]
+
+[esb]
+esb01.dam.wkcda.local ansible_host=10.33.74.69 esb_wrapper_initmemory=512m esb_wrapper_maxmemory=1024m
+
+[author]
+author01.sit.dam.wkcda.local ansible_host=10.33.74.69 aem_jvm_opts="-server -Xms4096m -Xmx4096m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[publisher]
+publisher01.dam.wkcda.local ansible_host=10.32.171.17 aem_jvm_opts="-server -Xms2048m -Xmx4096m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[dispatcher]
+
+[dispatcher-publish]
+dispatcher02.dam.wkcda.local ansible_host=10.32.171.17
+
+[solr]
+solr01.dam.wkcda.local ansible_host=10.32.171.17
+solr02.dam.wkcda.local ansible_host=10.33.74.69
+
+
+###########################
+# SERVICE TO SERVER MAP
+###########################
+
+[sit:children]
+applications
+consul-server
+consul-client
+author
+dispatcher
+publisher
+dispatcher-publish
+solr
+esb

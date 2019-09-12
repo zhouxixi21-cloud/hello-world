@@ -1,0 +1,10 @@
+---
+
+maven:
+  repository_url: http://10.32.64.11:8081/repository/maven-public/
+
+esb_repository_url: "{{ maven.repository_url }}"
+
+samba_user: "3app-dam-pro-svc"
+samba_pass: "3edc%TGB"
+samba_host: 10.32.64.16

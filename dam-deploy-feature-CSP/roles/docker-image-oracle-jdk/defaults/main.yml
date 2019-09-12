@@ -1,0 +1,14 @@
+---
+
+oracle_account_email: yaw.ly@rxpservices.com
+oracle_account_password: 2wsx#EDC
+
+docker_repository: 10.32.64.11:5000                             # Docker registry to push and pull images from
+
+docker_oracle_jdk_tag: 8u73-b02
+
+docker_images_force: no
+docker_images_push: no
+docker_images_pull: yes
+
+oracle_jdk_rpm_url: http://10.32.64.11:8081/repository/maven-releases/oracle-java/jdk/8u73-b02/jdk-8u73-b02.rpm

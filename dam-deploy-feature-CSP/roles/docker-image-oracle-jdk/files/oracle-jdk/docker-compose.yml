@@ -1,0 +1,18 @@
+oracle-jdk:
+  build: .
+  labels:
+    os.version: "centos"
+    container.description: "oracle jdk 8"
+
+#TODO: Cant do this untill docker servier is 1.21+
+#version: '2'
+#services:
+#  oracle-jdk:
+#    build:
+#      context: ./
+#      args:
+#        buildno: 1
+#        user: devops
+#    labels:
+#      os.version: "centos"
+#      container.description: "oracle jdk 8"

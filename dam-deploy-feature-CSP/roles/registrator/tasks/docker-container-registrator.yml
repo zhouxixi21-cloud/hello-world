@@ -1,0 +1,22 @@
+---
+
+- name: docker start registrator
+  docker_container:
+    name: "registrator-{{ inventory_hostname }}-{{ consul_environment }}"
+    image: "{{ docker_image }}:{{ docker_image_tag }}"
+    state: started
+    privileged: true
+    recreate: "{{ docker_recreate }}"
+    command: "{{ registrator_opts }} consul://{{ consul_host }}:8500"
+    docker_api_version: "{{ docker.api_version }}"
+    network_mode: "{{ consul_network_name }}"
+    networks: "{{ docker_networks }}"
+    volumes:
+    - "/var/run/docker.sock:/tmp/docker.sock"
+    env:
+      SERVICE_IGNORE: yes
+  become: yes
+  tags:
+    - docker-containers
+    - docker-containers-registrator
+    

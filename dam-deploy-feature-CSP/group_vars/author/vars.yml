@@ -1,0 +1,43 @@
+---
+
+# file: group_vars/author
+
+docker_image_tag: 1.3                                             # Latest aem base image to build and run
+docker_image_tag_aem: 1.4                                         # Latest aem image to build and run
+docker_image: aem-author                                 # AEM Docker Image to run author containers
+
+aem_host: "{{ ansible_host }}"
+aem_port: 4502
+aem_ssl_port: 5433
+aem_jvm_opts: "-server -Xms4096m -Xmx8192m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+service_author_username: "admin"
+service_author_password: "admin"
+aem_username: "{{ service_author_username }}"
+aem_password: "{{ service_author_password }}"
+aem_topology_host_ip: "{{ ansible_host }}"
+aem_topology_host_port: "{{ aem_port }}"
+
+consul_service_name: author
+
+docker_network_mode: bridge
+docker_network_name:
+  - name: bridge
+  - name: "{{ consul_network_name }}"
+
+docker_volume_driver: local
+docker_volumes:
+  - "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}:/aem/crx-quickstart"
+  - "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}-datastore:/aem/datastore"
+  - "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}-tmp:/tmp"
+
+docker_aem_published_port:
+  - "{{ aem_port }}:{{ aem_port }}/tcp"
+  - "{{ aem_ssl_port }}:{{ aem_ssl_port }}/tcp"
+
+volume_info: []
+
+aem_runmode: "author,{{ consul_environment }},nosamplecontent"
+
+include_vars: aem-packages-files.yml
+
+stop_timeout: 3600

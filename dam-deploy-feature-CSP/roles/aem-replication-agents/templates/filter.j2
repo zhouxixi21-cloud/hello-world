@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspaceFilter version="1.0">
+    {% for item in replication_agents %}
+    <filter root="/etc/replication/agents.{{ item.agentsOn }}/{{ item.name }}" mode="merge"/>
+    {% endfor %}
+    {% for item in dispatcher_flush_agents %}
+    <filter root="/etc/replication/agents.{{ item.agentsOn }}/{{ item.name }}"/>
+    {% endfor %}
+</workspaceFilter>

@@ -1,0 +1,50 @@
+---
+
+###################################################################
+## Docker container details for solr cloud running with zookeeper #
+###################################################################
+
+container_solr_version: 6.3.0                               # Solr version to build Docker images
+solr_bind_ip: 0.0.0.0
+solr_zookeeper_host: 127.0.0.1:9983                         # Zookeeper host (ip:port) to upload configs
+container_solr_path: /opt/solr/server/aemsolr
+
+docker_container_name: solr
+docker_image: aem-solr-cloud
+docker_image_tag: 2                                         # Dockerfile to build and run (under: files/docker/aem-solr)
+docker_published_ports:
+  - "8983:8983/tcp"
+  - "9983:9983/tcp"
+
+docker_network_mode: bridge
+docker_network_name:
+  - name: bridge
+  - name: "{{ consul_network_name }}"
+
+docker_volumes:
+  - "{{ docker_container_name }}:/opt/solr/server/aemsolr"
+
+##  Docker repository usage
+docker_images_pull: no
+docker_images_push: no                                      # using docker in isolation by default. set to yes to push to private registry.
+docker_images_force: yes                                    # rebuild all docker images by default.
+
+docker_repository: 0.0.0.0:5000                             # Docker registry to push and pull images from
+
+docker_registry_username: admin                             # parameter for 'docker login --username'
+docker_registry_password: admin123                          # parameter for 'docker login --password'
+docker_registry_email: devops@wkcda.hk
+
+consul_service_tags: "{{ consul_environment }}"             # Docker environment variable for consul SERVICE_TAGS
+
+volume_info:
+  volume_group: rhel
+  logical_volume: "{{ docker_container_name }}"
+  size: 10g
+  mount_point: "/var/{{ docker_container_name }}"
+  mapping: "rhel-{{ docker_container_name }}"
+  fstype: xfs
+  is_encrypted: false
+
+solr_jvm_stack_size: -Xss512k
+solr_jvm_heap: 4g

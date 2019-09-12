@@ -1,0 +1,12 @@
+gitlab:
+  build: .
+  labels:
+    os.version: "ubuntu 14.04"
+    container.description: "GitLab Community Edition docker image based on the Omnibus package"
+  container_name: "gitlab"
+  ports:
+   - "8943:443"
+   - "8980:80"
+   - "8922:22"
+#  volumes_from:
+#   - gitlab-data

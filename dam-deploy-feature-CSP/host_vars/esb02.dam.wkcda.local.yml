@@ -1,0 +1,4 @@
+---
+
+docker_container_name: "esb01-{{ consul_environment }}"
+docker_image_tag: 2.1

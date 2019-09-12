@@ -1,0 +1,57 @@
+---
+
+- name: create a temporary config directory
+  file:
+    path="{{ consul_config_tmp }}/config"
+    state=directory
+  become: yes
+  tags:
+    - docker-containers
+    - docker-containers-consul-server
+
+- name: copy consul config to the temporary directory
+  synchronize:
+      src: "config/"
+      dest: "{{ consul_config_tmp }}/config"
+  become: yes
+  tags:
+    - docker-containers
+    - docker-containers-consul-server
+
+- include: docker-container-consul-server.yml
+
+- name: copy consul config in the temporary directory to container
+  become: yes
+  shell: docker cp {{ consul_config_tmp }}/config/ {{ docker_container_name }}:/consul/
+  tags:
+    - docker-containers
+    - docker-containers-consul-server
+
+- name: restart docker container consul server
+  docker_container:
+    name: "{{ docker_container_name }}"
+    image: "{{ docker_image }}:{{ docker_image_tag }}"
+    state: started
+    privileged: true
+    recreate: "{{ docker_recreate }}"
+    timeout: 300
+    labels:
+      "CONSUL_SERVICE_IP={{ consul_bind_ip }}"
+    volume_driver: "{{ docker_volume_driver }}"
+    volumes: "{{ docker_volumes }}"
+    docker_api_version: "{{ docker.api_version }}"
+    dns_servers: "{{ docker_dns_servers }}"
+    command: "consul agent -config-dir /consul/config -data-dir /consul/data -node {{ consul_host_name }} -advertise={{ consul_bind_ip }} -bind=0.0.0.0 -client=0.0.0.0 {{ consul_opts }}"
+    published_ports: "{{ docker_published_ports }}"
+    restart: yes
+  become: yes
+  tags:
+    - docker-containers
+    - docker-containers-consul-server
+
+- name: Removing temporary folders
+  file: path={{ consul_config_tmp }} state=absent
+  become: yes
+  tags:
+    - docker-containers
+    - docker-containers-consul-server

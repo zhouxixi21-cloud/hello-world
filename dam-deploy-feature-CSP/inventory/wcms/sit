@@ -1,0 +1,16 @@
+# file: sit
+
+###########################
+# Groups
+###########################
+
+[applications]
+damnsitapplications01 ansible_host=103.5.79.18
+
+[author]
+damnsitauthor01 ansible_host=103.5.79.18
+damnsitauthor02 ansible_host=103.5.79.18
+
+[publisher]
+damsitpublish01 ansible_host=103.5.79.18
+damsitpublish02 ansible_host=103.5.79.18

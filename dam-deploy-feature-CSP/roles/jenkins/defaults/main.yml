@@ -1,0 +1,38 @@
+---
+
+##  Docker repository usage
+docker_images_pull: no
+docker_images_push: no                                      # using docker in isolation by default. set to yes to push to private registry.
+
+docker_repository: 10.32.64.11:5000                         # Docker registry to push and pull images from
+docker_registry_use: no                                     # yes to use private registry
+docker_images_force: yes                                    # rebuild all docker images by default.
+
+docker_registry_username: admin                             # parameter for 'docker login --username'
+docker_registry_password: admin123                          # parameter for 'docker login --password'
+docker_registry_email: devops@wkcda.hk
+
+docker_container_name: jenkins
+docker_image: devops/jenkins
+docker_image_tag_jenkins_base: 1
+docker_image_tag_jenkins: 2
+docker_published_ports:
+    - "8080:8080/tcp"
+    - "50000:50000/tcp"
+docker_volumes:
+    - "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}:/var/jenkins_home:rw"
+
+docker:
+  api_version: 1.22
+  timezone: "Asia/Hong_Kong"
+
+uid: 1500
+
+volume_info:
+  volume_group: rhel
+  logical_volume: jenkins
+  size: 10g
+  mount_point: /var/jenkins
+  mapping: rhel-jenkins
+  fstype: xfs
+  is_encrypted: false

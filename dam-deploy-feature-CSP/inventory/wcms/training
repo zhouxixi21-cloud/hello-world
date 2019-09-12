@@ -1,0 +1,48 @@
+# file: training
+
+###########################
+# HOSTS
+###########################
+
+[docker.host]
+10.72.28.60 public_ip=118.143.39.140 author_cq_runmode="author,crx3,crx3tar,training,ldap,stack-local,nosamplecontent" author_cq_jvm_opts="-server -Xms4096m -Xmx8196m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true" publish_cq_runmode="publish,crx3,crx3tar,training,stack-local,nosamplecontent" publish_cq_jvm_opts="-server -Xms1024m -Xmx2048m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+###########################
+# SERVICE TO HOST MAP
+###########################
+
+[dockerhost:children]
+docker.host
+
+[sshhost:children]
+docker.host
+
+[esb:children]
+docker.host
+
+[management:children]
+docker.host
+
+[management_buildhost:children]
+docker.host
+
+[management_cahost:children]
+docker.host
+
+[management_control:children]
+docker.host
+
+[management_registry:children]
+docker.host
+
+[author:children]
+docker.host
+
+[author_dispatcher:children]
+docker.host
+
+[publisher:children]
+docker.host
+
+[publisher_dispatcher:children]
+docker.host

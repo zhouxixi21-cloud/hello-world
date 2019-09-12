@@ -1,0 +1,123 @@
+---
+
+- name: Add Eth0 config
+  lineinfile:
+    dest: "{{ localserver_eth0_path }}"
+    regexp: "^{{ item.name }}"
+    line: "{{ item.name }}={{ item.value }}"
+    create: yes
+  with_items:
+    - { name: "DEFROUTE", value: "no" }
+  tags:
+    - localdev
+
+- name: Add Eth1 config
+  lineinfile:
+    dest: "{{ localserver_eth1_path }}"
+    regexp: "^{{ item.name }}"
+    line: "{{ item.name }}={{ item.value }}"
+    create: yes
+  with_items:
+    - { name: "BOOTPROTO", value: "dhcp" }
+    - { name: "DEVICE", value: "{{ localserver_eth1_name }}" }
+    - { name: "NAME", value: "{{ localserver_eth1_name }}" }
+    - { name: "ONBOOT", value: "yes" }
+    - { name: "TYPE", value: "Ethernet" }
+    - { name: "DEFROUTE", value: "yes" }
+    - { name: "IPV4_FAILURE_FATAL", value: "no" }
+    - { name: "PREFIX", value: "24" }
+    - { name: "PEERDNS", value: "yes" }
+    - { name: "PEERROUTES", value: "yes" }
+    - { name: "IPV6INIT", value: "yes" }
+    - { name: "IPV6_AUTOCONF", value: "yes" }
+    - { name: "IPV6_DEFROUTE", value: "yes" }
+    - { name: "IPV6_PEERDNS", value: "yes" }
+    - { name: "IPV6_PEERROUTES", value: "yes" }
+    - { name: "IPV6_FAILURE_FATAL", value: "no" }
+  tags:
+    - localdev
+
+- name: Add Eth2 config
+  lineinfile:
+    dest: "{{ localserver_eth2_path }}"
+    regexp: "^{{ item.name }}"
+    line: "{{ item.name }}={{ item.value }}"
+    create: yes
+  with_items:
+    - { name: "BOOTPROTO", value: "static" }
+    - { name: "DEVICE", value: "{{ localserver_eth2_name }}" }
+    - { name: "NAME", value: "{{ localserver_eth2_name }}" }
+    - { name: "ONBOOT", value: "yes" }
+    - { name: "TYPE", value: "Ethernet" }
+    - { name: "DEFROUTE", value: "no" }
+    - { name: "IPADDR", value: "{{ localserver_host_ip }}" }
+    - { name: "IPV4_FAILURE_FATAL", value: "no" }
+    - { name: "PREFIX", value: "24" }
+    - { name: "PEERDNS", value: "no" }
+    - { name: "PEERROUTES", value: "no" }
+    - { name: "IPV6INIT", value: "no" }
+    - { name: "IPV6_AUTOCONF", value: "no" }
+    - { name: "IPV6_DEFROUTE", value: "no" }
+    - { name: "IPV6_PEERDNS", value: "no" }
+    - { name: "IPV6_PEERROUTES", value: "no" }
+    - { name: "IPV6_FAILURE_FATAL", value: "no" }
+  tags:
+    - localdev
+
+- name: Update net config
+  lineinfile:
+    dest: "{{ localserver_netconfig_path }}"
+    regexp: "^{{ item.name }}"
+    line: "{{ item.name }}={{ item.value }}"
+  with_items:
+    - { name: "NETWORKING", value: "yes" }
+    - { name: "HOSTNAME", value: "{{ localserver_hostname }}" }
+    - { name: "GATEWAYDEV", value: "{{ localserver_eth1_name }}" }
+  tags:
+    - localdev
+
+#- name: Restart networking
+#  command: /etc/init.d/network restart
+#  tags:
+#  - localdev
+
+- name: Restart server
+  shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+  async: 1
+  poll: 0
+  ignore_errors: true
+  tags:
+    - localdev
+
+- name: Waiting for server to come back
+  local_action: wait_for host={{ inventory_hostname }} state=started port=22 delay=1 timeout=300
+  become: false
+  tags:
+    - localdev
+
+- name: Check if Docker containers have access to Internet
+  shell: docker run -it --rm alpine ping -c 1 -W 2 -4 -q google.com
+  register: ping_check
+  ignore_errors: true
+  become: yes
+  become_user: root
+  become_method: sudo
+  tags:
+    - localdev
+
+- name: Does Docker containers have access to Internet
+  debug:
+    msg: "Docker Containers have Internet Access: {{ ping_check.stdout.find('1 packets received') != -1 }}"
+  tags:
+    - localdev
+
+- name: Check if Physical Disk Drive has grown
+  shell: pvs | grep rhel | awk '{s=($6==0?"no":"yes"); print s; }'
+  ignore_errors: true
+  register: disk_check
+
+#- name: Expand Logical Volume if Physical Drive has grown
+#  shell: lvextend -l +50%FREE rhel/docker-pool
+#  when:  disk_check.stdout.find('yes') != -1
+#  tags:
+#    - localdev

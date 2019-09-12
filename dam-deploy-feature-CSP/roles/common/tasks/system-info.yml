@@ -1,0 +1,27 @@
+---
+
+- name: Show Docker Info
+  script: roles/common/files/scripts/docker-info.sh
+  tags:
+    - system-info
+    - debug
+
+
+- name: Show VM Diskspace
+  script: roles/common/files/scripts/disk.sh
+  tags:
+    - system-info
+    - debug
+
+- name: Show VM Memory
+  script: roles/common/files/scripts/memory.sh
+  tags:
+    - system-info
+    - debug
+
+
+- name: Show VM CPU
+  script: roles/common/files/scripts/cpu.sh
+  tags:
+    - system-info
+    - debug

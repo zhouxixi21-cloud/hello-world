@@ -1,0 +1,7 @@
+---
+
+- include: docker-images-build-solr.yml
+
+- include: docker-container-solr.yml
+
+- include: configure-solr.yml

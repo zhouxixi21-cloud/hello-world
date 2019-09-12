@@ -1,0 +1,73 @@
+# Ignore VLT files
+.vlt
+.vlt-sync.log
+.vlt-sync-config.properties
+
+# Ignore Quickstart launches in the source tree
+#license.properties
+crx-quickstart
+
+# Ignore compilation results
+target
+
+# Ignore IDE and Operating System artifacts
+.idea
+.classpath
+.metadata
+.project
+.settings
+maven-eclipse.xml
+*.iml
+*.ipr
+*.iws
+.DS_Store
+
+# Node
+content/node_modules
+node/
+node_modules
+npm-debug.log
+
+# Velocity
+bundle/velocity.log.*
+bundle/velocity.log
+velocity.log*
+
+# Other
+wkcd-aem-author/
+wkcd-aem-common/
+wkcd-aem-services/
+wkcd-aem-config/
+wkcd-aem-prototype/
+wkcd-aem-showcase/
+wkcd-aem-testing/
+wkcd-aem-content/
+wkcd-aem/
+
+#Packer.io
+packer_cache
+builds
+
+#deployer
+*.pyc
+jenkins.properties
+lib/cache/
+lib/python-packages/
+library/cache/
+library/python-packages/
+
+#ignore forms packages as they are too big to fit in BitBucket
+acs-*.zip
+[aA][eE][mM]-*.zip
+brightcove-*.zip
+com.adobe.*.zip
+cq-*.jar
+cq-*.zip
+mysql-connector-java-*
+
+#Fonts
+roles/aem-author/files/msft-fonts/*.ttc
+roles/aem-author/files/msft-fonts/*.ttf
+
+#Ansible
+*.retry

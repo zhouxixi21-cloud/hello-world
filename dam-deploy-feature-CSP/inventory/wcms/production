@@ -1,0 +1,91 @@
+# file: production
+
+###########################
+# HOSTS
+###########################
+
+[author1]
+10.72.32.66 AUTHOR_IP=10.72.32.66 AUTHOR_CACHE_IP=10.72.32.67 renderer_ip=10.72.32.66 author_cq_runmode="author,crx3,crx3tar,prod,ldap,stack-local,nosamplecontent" author_cq_jvm_opts="-server -Xms4096m -Xmx32768m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[author2]
+10.72.32.68 AUTHOR_IP=10.72.32.68 AUTHOR_CACHE_IP=10.72.32.69 renderer_ip=10.72.32.68 author_cq_runmode="author,crx3,crx3tar,prod,ldap,stack-local,nosamplecontent" author_cq_jvm_opts="-server -Xms4096m -Xmx32768m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[publisher1]
+10.72.28.79 PUBLISH_IP=10.72.28.79 PUBLISH_CACHE_IP=10.72.28.80 renderer_ip=10.72.28.79 public_ip=10.72.28.80 publish_cq_runmode="publish,crx3,crx3tar,prod,stack-local" publish_cq_jvm_opts="-server -Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[publisher2]
+10.72.28.83 PUBLISH_IP=10.72.28.83 PUBLISH_CACHE_IP=10.72.28.84 renderer_ip=10.72.28.83 public_ip=10.72.28.84 publish_cq_runmode="publish,crx3,crx3tar,prod,stack-local" publish_cq_jvm_opts="-server -Xms2048m -Xmx2048m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[esb1]
+10.72.28.81 ESB_IP=10.72.28.81 ESB_CACHE_IP=10.72.28.82 public_ip=10.72.28.82
+
+[esb2]
+10.72.28.85 ESB_IP=10.72.28.85 ESB_CACHE_IP=10.72.28.86 public_ip=10.72.28.86
+
+[management1]
+10.72.76.62
+
+[management_master]
+10.72.76.85
+
+###########################
+# SERVICE TO SERVER MAP
+###########################
+
+
+[dockerhost:children]
+esb1
+esb2
+author1
+author2
+publisher1
+publisher2
+management1
+
+
+[sshhost:children]
+esb1
+esb2
+author1
+author2
+publisher1
+publisher2
+management1
+
+
+[esb:children]
+esb1
+esb2
+
+
+[management:children]
+management_master
+
+[management_buildhost:children]
+management_master
+
+[management_cahost:children]
+management1
+
+[management_control:children]
+management1
+
+[management_registry:children]
+management1
+
+[author:children]
+author1
+author2
+
+[author_dispatcher:children]
+author1
+author2
+
+
+[publisher:children]
+publisher1
+publisher2
+
+[publisher_dispatcher:children]
+publisher1
+publisher2

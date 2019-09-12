@@ -1,0 +1,8 @@
+---
+
+aem_packages_temp_path: "ansible/files/aem-packages/"
+adobeaemcloud_username: "devops@rxpservices.com"
+adobeaemcloud_password: "dykWSnRjhz2bJMW8ibln"
+aem_host: "{{ aem_bridge_host.stdout }}"
+aem_port: "{{ aem_port }}"
+interval_wait_all_bundles: 30

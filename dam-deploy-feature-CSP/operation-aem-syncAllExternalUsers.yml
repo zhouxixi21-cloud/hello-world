@@ -1,0 +1,19 @@
+---
+
+- name: AEM UserManagement syncAllExternalUsers
+  hosts: author
+  gather_facts: no
+  vars:
+    aem_host: "{{ ansible_host }}"
+
+  pre_tasks: []
+  roles: []
+
+  tasks:
+
+  - name: register log file name
+    shell: "curl -u {{ aem_username }}:{{ aem_password }} -X POST http://{{ aem_host }}:{{ aem_port }}/system/console/jmx/org.apache.jackrabbit.oak%3Ahandler%3D%22wkcda%22%2Cidp%3D%22wkcda%22%2Cname%3DExternal+Identity+Synchronization+Management%2Ctype%3DUserManagement/op/syncAllExternalUsers"
+    tags:
+      - aem-syncAllExternalUsers
+      
+  post_tasks: []

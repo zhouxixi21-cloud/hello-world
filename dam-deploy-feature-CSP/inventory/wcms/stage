@@ -1,0 +1,91 @@
+# file: stage
+
+###########################
+# HOSTS
+###########################
+
+[author1]
+10.72.32.57 AUTHOR_IP=10.72.32.57 AUTHOR_CACHE_IP=10.72.32.58 renderer_ip=10.72.32.57 author_cq_runmode="author,crx3,crx3tar,stage,ldap,stack-local,nosamplecontent" author_cq_jvm_opts="-server -Xms4096m -Xmx16384m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[author2]
+10.72.32.60 AUTHOR_IP=10.72.32.60 AUTHOR_CACHE_IP=10.72.32.61 renderer_ip=10.72.32.60 author_cq_runmode="author,crx3,crx3tar,stage,ldap,stack-local,nosamplecontent" author_cq_jvm_opts="-server -Xms4096m -Xmx16384m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[publisher1]
+10.72.28.61 PUBLISH_IP=10.72.28.61 PUBLISH_CACHE_IP=10.72.28.62 renderer_ip=10.72.28.61 public_ip=103.5.79.22 publish_cq_runmode="publish,crx3,crx3tar,stage,stack-local,nosamplecontent" publish_cq_jvm_opts="-server -Xms1024m -Xmx1024m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[publisher2]
+10.72.28.75 PUBLISH_IP=10.72.28.75 PUBLISH_CACHE_IP=10.72.28.76 renderer_ip=10.72.28.75 public_ip=103.5.79.23 publish_cq_runmode="publish,crx3,crx3tar,stage,stack-local,nosamplecontent" publish_cq_jvm_opts="-server -Xms1024m -Xmx1024m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[esb1]
+10.72.28.63 ESB_IP=10.72.28.63 ESB_CACHE_IP=10.72.28.64 public_ip=103.5.79.21
+
+[esb2]
+10.72.28.77 ESB_IP=10.72.28.77 ESB_CACHE_IP=10.72.28.78 public_ip=103.5.79.24
+
+[management1]
+10.72.76.51
+
+[management_master]
+10.72.76.85
+
+###########################
+# SERVICE TO SERVER MAP
+###########################
+
+
+[dockerhost:children]
+esb1
+esb2
+author1
+author2
+publisher1
+publisher2
+management1
+
+
+[sshhost:children]
+esb1
+esb2
+author1
+author2
+publisher1
+publisher2
+management1
+
+
+[esb:children]
+esb1
+esb2
+
+
+[management:children]
+management_master
+
+[management_buildhost:children]
+management_master
+
+[management_cahost:children]
+management1
+
+[management_control:children]
+management1
+
+[management_registry:children]
+management1
+
+[author:children]
+author1
+author2
+
+[author_dispatcher:children]
+author1
+author2
+
+
+[publisher:children]
+publisher1
+publisher2
+
+[publisher_dispatcher:children]
+publisher1
+publisher2

@@ -1,0 +1,25 @@
+---
+# file: group_vars/consul-server
+
+docker_image: consul
+docker_image_tag: latest
+
+# docker-host
+docker_cluster_store: consul://consul.service.dc1.consul:8500   # docker daemon parameter --cluster-store
+
+docker_consul_net_driver: bridge                                # Docker Network driver for 'consul-net' (bridge|overlay)
+
+consul_bind_ip: "{{ ansible_host }}"                            # Host IP to bind consul services
+consul_host: "{{ ansible_host }}"                               # Registrator to sync with Consul
+consul_opts_extra: ""
+consul_network_name: consul-net                                 # Docker Network for Consul servers and agents
+
+docker_network_mode: bridge                                     # Docker Network mode for containers
+docker_volume_driver: local
+docker_network_name:
+  - name: bridge
+  - name: "{{ consul_network_name }}"
+docker_volumes:
+  - "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}:/consul/data"
+
+volume_info: []

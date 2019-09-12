@@ -1,0 +1,7 @@
+---
+# vars file for .
+
+firewall:
+  snmp_source_addr: "10.72.40.40"
+  snmp_src_file: "os/snmp.xml"
+  snmp_dest_file: "/etc/firewalld/services/snmp.xml"

@@ -1,0 +1,24 @@
+---
+
+docker_container_name: "author01-{{ consul_environment }}"
+
+# Configures the AEM Publisher Replication Agents in /etc/replication/agents.author
+replication_agents:
+  - name: "publish_01"
+    agentsOn: "author"
+    enabled: "true"
+    uri: "http://10.32.171.13:4503/bin/receive?sling:authRequestLogin=1"
+  - name: "publish_02"
+    agentsOn: "author"
+    enabled: "true"
+    uri: "http://10.32.171.14:4503/bin/receive?sling:authRequestLogin=1"
+
+dispatcher_flush_agents: []
+
+dam_update_asset_workflowlauncher:
+  - name: "update_asset_create"
+    enabled: "true"
+    workflow: "/etc/workflow/models/dam/update_asset/jcr:content/model"
+  - name: "update_asset_mod"
+    enabled: "true"
+    workflow: "/etc/workflow/models/dam/update_asset/jcr:content/model"

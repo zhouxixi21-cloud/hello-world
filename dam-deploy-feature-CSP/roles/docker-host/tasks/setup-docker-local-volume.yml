@@ -1,0 +1,142 @@
+---
+
+- name: templating docker network config
+  template:
+     src="docker-network.default.j2"
+     dest=/etc/sysconfig/docker-network
+  become: yes
+  tags:
+    - docker-daemon-configure
+
+- name: templating docker daemon config
+  template:
+     src="docker.{{ docker_daemon_template }}.j2"
+     dest=/etc/sysconfig/docker
+  become: yes
+  tags:
+    - docker-daemon-configure
+
+- name: Create partition
+  parted:
+    device: /dev/sdb
+    number: 1
+    state: present
+    part_end: 100GiB
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: Create partition
+  parted:
+    device: /dev/sdb
+    number: 2
+    state: present
+    part_start: 100GiB
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: Create partition to additional disk
+  parted:
+    device: "{{ item }}"
+    number: 1
+    state: present
+  with_items:
+    - "{{ vg1_disks }}"
+    - "{{ vg2_disks }}"
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: Create or resize volume group vg1
+  lvg:
+    vg: vg1
+    pvs: "/dev/sdb1{% if vg1_disks != [] %},{% endif %}{{ vg1_disks|zip_longest([], fillvalue='1')| map('join')|join(',') }}"
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: templating docker storage config
+  template:
+     src="docker-storage-setup.j2"
+     dest=/etc/sysconfig/docker-storage-setup
+  become: yes
+  tags:
+    - docker-daemon-configure
+
+- name: Create or resize volume group vg2
+  lvg:
+    vg: vg2
+    pvs: "/dev/sdb2{% if vg2_disks != [] %},{% endif %}{{ vg2_disks|zip_longest([], fillvalue='1')| map('join')|join(',') }}"
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+### https://everythingshouldbevirtual.com/ansible-playbook-lvm/
+- name: creating new LVM logical volume
+  lvol:
+    lv: dockervolume
+    vg: vg2
+    size: 99g
+    shrink: no
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: creating new filesystem on new LVM logical volume
+  filesystem:
+    fstype: xfs
+    dev: /dev/vg2/dockervolume
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: mounting new filesystem
+  mount:
+    name: "{{ docker_volume_basepath }}"
+    src: /dev/vg2/dockervolume
+    fstype: xfs
+    state: mounted
+  become: yes
+  tags:
+  - docker-daemon-configure
+  - docker-volume-configure
+
+### http://www.advishnuprasad.com/blog/2016/03/29/setup-nfs-server-and-client-using-ansible/
+- name: Configure permission of mountable dir
+  file:
+    path: "{{ docker_volume_basepath }}"
+    state: directory
+    mode: 0775
+    owner: root
+    group: root
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: Extend the logical volume to consume all remaining space in the volume group
+  lvol:
+    vg: "{{ extend_vgname }}"
+    lv: "{{ extend_lvname }}"
+    size: "{{ lvextend_options }}"
+  when: lv_extend
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: resizing filesystem
+  shell: "xfs_growfs /dev/mapper/{{ extend_vgname }}-{{ extend_lvname }}"
+  when: lv_resize
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure

@@ -1,0 +1,102 @@
+---
+
+- name: create temp directory
+  tempfile:
+    state: directory
+  register: temp_dir
+  tags:
+    - configure-aem-replication
+
+- name: docker inspect container bridge ip
+  command: "docker inspect -f '{{ '{{' }} .NetworkSettings.Networks.bridge.IPAddress {{ '}}' }}' {{ docker_container_name }}"
+  register: aem_bridge_host
+  become: yes
+  tags:
+    - configure-aem-replication
+
+- name: creating content package folder
+  file:
+    path: "{{ temp_dir.path }}/aem_conf/jcr_root/etc/replication/agents.{{ item.agentsOn }}/{{item.name}}"
+    state: directory
+  with_items:
+    - "{{ replication_agents }}"
+    - "{{ dispatcher_flush_agents }}"
+  tags:
+    - configure-aem-replication
+
+- name: creating replication agent content
+  template:
+    src: replication-agent.j2
+    dest: "{{ temp_dir.path }}/aem_conf/jcr_root/etc/replication/agents.{{ item.agentsOn }}/{{item.name}}/.content.xml"
+  with_items:
+    - "{{ replication_agents }}"
+  tags:
+    - configure-aem-replication
+
+- name: creating dispatcher flush
+  template:
+    src: dispatcher-flush.j2
+    dest: "{{ temp_dir.path }}/aem_conf/jcr_root/etc/replication/agents.{{ item.agentsOn }}/{{item.name}}/.content.xml"
+  with_items:
+    - "{{ dispatcher_flush_agents }}"
+  tags:
+    - configure-dispatcher-flush
+    - configure-aem-replication
+
+- name: copying META-INF
+  synchronize:
+    src: aem/conf/META-INF
+    dest: "{{ temp_dir.path }}/aem_conf"
+  with_items:
+    - "{{ replication_agents }}"
+    - "{{ dispatcher_flush_agents }}"
+  tags:
+    - configure-aem-replication
+
+- name: template filter.xml
+  template:
+    src: filter.j2
+    dest: "{{ temp_dir.path }}/aem_conf/META-INF/vault/filter.xml"
+  become: yes
+  tags:
+    - configure-aem-replication
+
+- name: aem creating package with replication agents
+  shell: zip -r {{ replication_agents_package_name }}-{{replication_agents_package_version}}.zip .
+  args:
+    chdir: "{{ temp_dir.path }}/aem_conf"
+  tags:
+    - configure-aem-replication
+
+- name: aem uploading replication agent package
+  aem_upload_package:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    group_name: aem_config
+    package_name: "{{ replication_agents_package_name }}"
+    package_version: "{{replication_agents_package_version}}"
+    file_path: "{{ temp_dir.path }}/aem_conf"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+    force: yes
+  tags:
+    - configure-aem-replication
+
+- name: installing replication agent package
+  aem_install_package:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    group_name: aem_config
+    package_name: "{{ replication_agents_package_name }}"
+    package_version: "{{replication_agents_package_version}}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+  tags:
+    - configure-aem-replication
+
+- name: removing aem configuration directory
+  file:
+    path: "{{ temp_dir.path }}"
+    state: absent
+  tags:
+    - configure-aem-replication

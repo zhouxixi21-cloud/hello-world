@@ -1,0 +1,5 @@
+mule-esb:
+  build: .
+  labels:
+    os.version: "centos"
+    container.description: "oracle jdk 8"

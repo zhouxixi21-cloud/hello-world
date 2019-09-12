@@ -1,0 +1,30 @@
+---
+
+- name: cleanup
+  hosts: author
+  gather_facts: no
+  vars:
+    clean_author_tmpfiles_opts: "-mtime +2 -print -exec rm -rf {} \\;"
+    clean_author_logfiles_opts: "-mtime +90 -print -exec rm -rf {} \\;"
+  tasks:
+  - name: cleanup author temp files
+    shell: "{{ item }}"
+    with_items:
+      - "find /var/lib/rancher/convoy/devicemapper/mounts/author01-{{ consul_environment }}-tmp/exifdam* -type d {{ clean_author_tmpfiles_opts }}"
+      - "find /var/lib/rancher/convoy/devicemapper/mounts/author01-{{ consul_environment }}-tmp/+~JF*.tmp -type f {{ clean_author_tmpfiles_opts }}"
+    ignore_errors: true
+    become: yes
+    tags:
+      - clean-author-tmpfiles
+
+  - name: cleanup author log files
+    shell: "{{ item }}"
+    with_items:
+    - "find /var/lib/rancher/convoy/devicemapper/mounts/author01-{{ consul_environment }}/logs/ImageServer* -type f {{ clean_author_logfiles_opts }}"
+    - "find /var/lib/rancher/convoy/devicemapper/mounts/author01-{{ consul_environment }}/logs/XMPFilesWorker* -type f {{ clean_author_logfiles_opts }}"
+    - "find /var/lib/rancher/convoy/devicemapper/mounts/author01-{{ consul_environment }}/logs/activitylog/* -type f {{ clean_author_logfiles_opts }}"
+    - "find /var/lib/rancher/convoy/devicemapper/mounts/author01-{{ consul_environment }}/logs/userlogin/* -type f {{ clean_author_logfiles_opts }}"
+    ignore_errors: true
+    become: yes
+    tags:
+    - clean-author-logfiles

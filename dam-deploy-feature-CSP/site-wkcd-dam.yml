@@ -1,0 +1,10 @@
+---
+
+- include: server.yml
+- include: applications.yml
+- include: solr.yml
+- include: author.yml
+- include: publisher.yml
+- include: processing.yml
+- include: dispatcher.yml
+- include: esb.yml    #没有包

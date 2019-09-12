@@ -1,0 +1,15 @@
+---
+# file: group_vars/nexus
+
+iptable:
+  rules:
+    - chain: INPUT
+      protocol: tcp
+      match: tcp
+      port: 5000
+      jump_target: ACCEPT
+    - chain: INPUT
+      protocol: tcp
+      match: tcp
+      port: 8081
+      jump_target: ACCEPT

@@ -1,0 +1,35 @@
+---
+
+- include: docker-image-build-aem.yml
+
+- include: docker-container-aem.yml
+
+- name: docker inspect container bridge ip
+  command: "docker inspect -f '{{ '{{' }} .NetworkSettings.Networks.bridge.IPAddress {{ '}}' }}' {{ docker_container_name }}"
+  register: aem_bridge_host
+  become: yes
+  tags:
+    - aem-bundles
+
+- name: wait until all bundles are activated
+  aem_bundles_wait_activated:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+    interval_wait: "{{ interval_wait_all_bundles }}"
+  tags:
+    - aem-verify
+    - aem-bundles
+
+- name: ensure absence (HTTP code 404) of 32-bit XMPWorker Linux fragment
+  uri:
+    url: "http://{{ aem_host }}:{{ aem_port }}/system/console/bundles/com.adobe.xmp.worker.files.native.fragment.linux"
+    method: POST
+    user: "{{ aem_username }}"
+    password: "{{ aem_password }}"
+    force_basic_auth: yes
+    body: "action=uninstall"
+    status_code: 200,404
+  tags:
+    - aem-bundles

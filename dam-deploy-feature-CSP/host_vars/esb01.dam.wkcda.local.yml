@@ -1,0 +1,3 @@
+---
+
+docker_container_name: "esb01-{{ consul_environment }}"

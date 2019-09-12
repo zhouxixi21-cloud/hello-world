@@ -1,0 +1,13 @@
+---
+
+- include: setup-docker.yml
+  when: use_islion is defined and use_islion == true
+  static: no
+  tags:
+    - docker-daemon-configure
+
+- include: setup-docker-local-volume.yml
+  when: use_islion is defined and use_islion != true
+  static: no
+  tags:
+    - docker-daemon-configure

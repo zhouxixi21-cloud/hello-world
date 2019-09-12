@@ -1,0 +1,26 @@
+FROM       devops/oracle-jdk:8u73-b02
+
+MAINTAINER Yaw Ly <yaw.ly@rxpservices.com>
+
+LABEL   os.version="centos" \
+        container.description="mulesoft esb standalone 3.8.1"
+
+ARG ESB_PACKAGE_URL
+
+ENV JAVA_HOME /usr/java/jdk1.8.0_73
+
+RUN yum -y install wget unzip less vim \
+ && mkdir -p /tmp/mule-standalone \
+ && cd /tmp/mule-standalone && wget https://repository.mulesoft.org/nexus/content/repositories/releases/org/mule/distributions/mule-standalone/3.8.1/mule-standalone-3.8.1.zip \
+ && cd /opt && unzip /tmp/mule-standalone/mule-standalone-3.8.1.zip \
+ && echo "bf286b1b1c9d314f634fa8bdfb14a767774b872e /tmp/mule-standalone/mule-standalone-3.8.1.zip" | sha1sum -c \
+ && rm -rf /tmp/mule-standalone \
+ && ln -s /opt/mule-standalone-3.8.1 /opt/mule
+
+ADD $ESB_PACKAGE_URL /opt/mule/apps/wkcd-esb-mule-latest.zip
+
+EXPOSE 0.0.0.0:8080:8080
+
+VOLUME ["/opt/mule/logs","/opt/mule/apps"]
+
+ENTRYPOINT [ "/opt/mule/bin/mule","-D-Mmule.encoding=UTF-8" ]

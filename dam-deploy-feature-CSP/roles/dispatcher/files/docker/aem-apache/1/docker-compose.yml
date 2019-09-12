@@ -1,0 +1,12 @@
+aem-apache:
+  dockerfile: Dockerfile
+  build: .
+  labels:
+    httpd.version: "2.4"
+    os.version: "centos 7"
+    container.description: "base apache"
+  container_name: "aem-apache"
+  environment:
+    - APACHE_RUN_USER=apache
+    - APACHE_RUN_GROUP=apache
+    - APACHE_RUN_USEID=48

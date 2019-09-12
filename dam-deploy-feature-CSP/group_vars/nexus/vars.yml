@@ -1,0 +1,10 @@
+---
+# file: group_vars/nexus
+include: net.yml
+
+docker:
+  api_version: 1.22
+  timezone: "Asia/Hong_Kong"
+
+maven:
+  repository_url: http://10.32.64.11:8081/repository/maven-public/

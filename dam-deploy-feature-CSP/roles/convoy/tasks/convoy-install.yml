@@ -1,0 +1,63 @@
+---
+
+- name: testing convoy service
+  stat:
+    path: /etc/systemd/system/convoy.service
+  register: convoy_status
+  tags:
+    - convoy-install
+
+- name: creating temp directory
+  command: mktemp -d
+  register: mktemp
+  tags:
+    - convoy-install
+
+- name: downloading convoy binaries
+  unarchive:
+    src: "{{ convoy_download_url }}"
+    dest: "{{ mktemp.stdout }}"
+    remote_src: yes
+  when: not convoy_status.stat.exists
+  tags:
+    - convoy-install
+
+- name: copying binaries to /usr/bin
+  command: "cp {{ mktemp.stdout }}/convoy/convoy {{ mktemp.stdout }}/convoy/convoy-pdata_tools /usr/bin"
+  become: yes
+  when: not convoy_status.stat.exists
+  tags:
+    - convoy-install
+
+- name: removing temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  tags:
+    - convoy-install
+
+- name: create docker plugins directory
+  file:
+    path: /etc/docker/plugins
+    state: directory
+  become: yes
+  when: not convoy_status.stat.exists
+  tags:
+    - convoy-install
+
+- name: creating convoy unix socket
+  shell: bash -c 'echo "unix:///var/run/convoy/convoy.sock" > /etc/docker/plugins/convoy.spec'
+  become: yes
+  when: not convoy_status.stat.exists
+  tags:
+    - convoy-install
+
+- name: templating convoy service
+  template:
+    src: convoy.service.j2
+    dest: /etc/systemd/system/convoy.service
+  become: yes
+  tags:
+    - convoy-install
+    - convoy-start
+

@@ -1,0 +1,62 @@
+---
+- name: Creating a temporary folder for applications
+  file: path={{esb_application_tmp}} state=directory
+
+- name: Copying WKCD ESB Application from the WKCD Maven Repository
+  maven_artifact: group_id=wkcd-aem artifact_id=wkcd-esb-mule repository_url={{esb_repository_url}} dest={{esb_application_tmp}} extension=zip
+
+- name: Installing WKCD ESB Application to ESB Applications Folder
+  become: yes
+  become_method: sudo
+  shell: docker cp {{esb_application_tmp}}/wkcd-esb-mule-latest.zip {{ docker_container_name }}:/opt/mule/apps
+
+- name: Removing temporary folders
+  file: path={{esb_application_tmp}} state=absent
+
+- name: restart container
+  docker_container:
+    name: "{{ docker_container_name }}"
+    state: started
+    restart: yes
+    privileged: true
+    docker_api_version: "{{ docker.api_version }}"
+  become: yes
+  tags:
+    - esb-mount-samba
+    - docker-containers-muleesb-restart
+
+- name: create smb mount point
+  shell: "docker exec {{ docker_container_name }} bash -c \"{{ item }}\""
+  with_items:
+   - "mkdir -p /mnt/DAM_to_TMS"
+   - "mkdir -p /mnt/TMS_to_DAM"
+   - "mkdir -p /esb/microsoft_training_data/in/"
+   - "mkdir -p /esb/microsoft_training_data/done/"
+   - "mkdir -p /esb/microsoft_training_data/error/"
+   - "mkdir -p /esb/microsoft_training_data/tmp/"
+  become: yes
+  tags:
+    - esb-mount-samba
+    - docker-containers-muleesb-restart
+
+- name: update container's /etc/fstab
+  shell: "docker exec {{ docker_container_name }} bash -c \"{{ item }}\""
+  with_items:
+   - "touch /etc/fstab"
+   - "grep -q '^.*DAM_to_TMS.*$' /etc/fstab && sed -i 's/^.*DAM_to_TMS.*$/\\/\\/{{ samba_host }}\\/m\\/DAM_Integration\\/DAM_to_TMS\\/{{ consul_environment }} \\/mnt\\/DAM_to_TMS\\/      cifs     username={{ samba_user }},password={{ samba_pass }}       0 0/' /etc/fstab || echo '//{{ samba_host }}/m/DAM_Integration/DAM_to_TMS/{{ consul_environment }} /mnt/DAM_to_TMS/      cifs     username={{ samba_user }},password={{ samba_pass }}       0 0' >> /etc/fstab"
+   - "grep -q '^.*TMS_to_DAM.*$' /etc/fstab && sed -i 's/^.*TMS_to_DAM.*$/\\/\\/{{ samba_host }}\\/m\\/DAM_Integration\\/TMS_to_DAM\\/{{ consul_environment }} \\/mnt\\/TMS_to_DAM\\/      cifs     username={{ samba_user }},password={{ samba_pass }}       0 0/' /etc/fstab || echo '//{{ samba_host }}/m/DAM_Integration/TMS_to_DAM/{{ consul_environment }} /mnt/TMS_to_DAM/      cifs     username={{ samba_user }},password={{ samba_pass }}       0 0' >> /etc/fstab"
+  become: yes
+  no_log: true
+  tags:
+    - esb-mount-samba
+    - docker-containers-muleesb-restart
+
+- name: create smb mount point
+  shell: "docker exec {{ docker_container_name }} bash -c \"{{ item }}\""
+  with_items:
+   - "mount -a"
+  become: yes
+  ignore_errors: true
+  tags:
+    - esb-mount-samba
+    - docker-containers-muleesb-restart

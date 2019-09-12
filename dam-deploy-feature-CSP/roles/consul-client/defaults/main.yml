@@ -1,0 +1,23 @@
+---
+
+docker:
+  api_version: 1.22
+  timezone: "Asia/Hong_Kong"
+
+docker_image: consul
+docker_image_tag: latest
+
+docker_container_name: consul-client                       # Name of the Docker container
+docker_dns_servers: []                                     # Configure DNS in Docker container
+docker_volume_driver: local
+docker_recreate: yes
+
+consul_config_path: /var/consul                            # Path to mount the volume to the host
+consul_bind_ip: 192.168.28.2                               # IP to bind the Consul container in the host
+consul_service_name: consul                                # Service name registered in consul
+
+consul_opts_extra: ""                                      # Consul options to pass in the startup
+consul_opts: "-ui -retry-join consul.service.dc1.consul {{ consul_opts_extra }}"
+
+docker_volumes:
+  - "{{ consul_config_path }}:/consul:z"

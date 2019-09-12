@@ -1,0 +1,61 @@
+---
+
+- name: ensure that docker daemon is running
+  shell: "systemctl status docker"
+  ignore_errors: yes
+  no_log: True
+  register: service_docker_status   #判断上述是否存在，存在即为success
+  become: yes
+  tags:
+    - docker-host-restart
+    - docker-host-stop-containers
+
+- name: docker stop all running containers
+  docker_containers:
+    docker_url: "{{ client_base_url }}"
+    stop_timeout: "{{ stop_timeout }}"
+    state: stopped
+  when: service_docker_status | success
+  become: yes
+  tags:
+    - docker-host-restart
+    - docker-host-stop-containers
+
+- name: docker service stopping
+  service:
+    name: docker
+    state: stopped
+  when: service_docker_status | success
+  become: yes
+  tags:
+    - docker-host-restart
+    - docker-host-stopped
+
+- name: docker-storage-setup service starting
+  service:
+    name: docker-storage-setup
+    enabled: yes
+    state: started
+  become: yes
+  tags:
+    - docker-host-restart
+    - docker-host-started
+
+- name: docker service starting
+  service:
+    name: docker
+    enabled: yes
+    state: started
+  become: yes
+  tags:
+    - docker-host-restart
+    - docker-host-started
+
+- name: docker start all stopped containers
+  docker_containers:
+    docker_url: "{{ client_base_url }}"
+    state: started
+  become: yes
+  tags:
+    - docker-host-restart
+    - docker-host-start-containers

@@ -1,0 +1,10 @@
+---
+
+docker_container_name: "publisher01-{{ consul_environment }}"
+consul_service_tags: "{{ consul_environment }},01"
+
+dispatcher_flush_agents:
+  - name: "flush_01"
+    agentsOn: "publish"
+    enabled: "true"
+    uri: "http://01.publish-dispatcher.service.dc1.consul:80/dispatcher/invalidate.cache"

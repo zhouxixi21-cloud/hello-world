@@ -1,0 +1,42 @@
+---
+
+- name: wkcda dam publish playbook
+  hosts: publisher
+
+  pre_tasks:
+
+  - name: test if docker service is running
+    systemd:
+      name: docker.service
+      state: started
+    become: yes
+
+  - include_role:
+      name: docker-login
+
+  roles:   ###
+    - role: aem-base
+    - role: aem
+
+  tasks:
+
+  - include_role:
+     name: aem-packages
+    vars:
+      group_name: "{{ item.group_name }}"
+      package_name: "{{ item.package_name }}"
+      package_version: "{{ item.version }}"
+      location_full: "{{ item.location_full | default(None) }}"
+      file_name: "{{ item.file_name }}"
+      direct_url: "{{ item.direct_url | default(None) }}"
+      requires_restart: "{{ item.requires_restart | default('no') }}"
+    with_items: "{{ dam_package_files }}"
+    tags:   ###
+      - aem-packages
+
+  - include_role:
+      name: aem-replication-agents
+
+  handlers: []
+
+  post_tasks: []

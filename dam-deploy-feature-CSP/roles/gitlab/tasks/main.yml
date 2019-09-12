@@ -1,0 +1,112 @@
+---
+- name: test if docker service is running
+  command: systemctl status docker
+  ignore_errors: yes
+  changed_when: false
+  register: docker_status
+  no_log: True
+
+- name: Create temp directory
+  shell: "mktemp -d"
+  register: mktemp
+  tags:
+    - docker-images-build
+
+- name: copy docker files
+  synchronize:
+    src: docker/
+    dest: "{{ mktemp.stdout }}"
+  tags:
+    - docker-images-build
+
+- name: login to private docker repository
+  docker_login:
+    username: "{{ docker_registry_username }}"
+    password: "{{ docker_registry_password }}"
+    registry: "{{ docker_repository }}"
+    email: "{{ docker_registry_email }}"
+  when: docker_images_push == "yes"
+  become: yes
+  tags:
+    - docker-images-build
+
+- name: ensure gitlab image is present
+  docker_image:
+    path: "{{ mktemp.stdout }}/gitlab/{{ docker_image_tag }}"
+    name: "{{ docker_image }}"
+    tag: "{{ docker_image_tag }}"
+    state: present
+    force: "{{ docker_images_force }}"
+    push: "{{ docker_images_push }}"
+    pull: "{{ docker_images_pull }}"
+    repository: "{{ docker_repository }}/devops/gitlab"
+  become: yes
+  tags:
+    - docker-images-build
+    - docker-images-build-gitlab
+
+- name: starting gitlab container
+  docker_container:
+    name: "{{ docker_container_name }}"
+    image: "{{ docker_image }}:{{ docker_image_tag }}"
+    state: started
+    privileged: true
+    published_ports: "{{ docker_published_ports }}"
+    volumes: "{{ docker_volumes }}"
+    env:
+      TZ: "{{ docker.timezone }}"
+  become: yes
+  tags:
+    - docker-containers-gitlab
+
+- name: Configure GitLab
+  become: yes
+  shell: "{{ item }}"
+  with_items:
+    - "sed -i \"s/external_url 'GENERATED_EXTERNAL_URL'/external_url 'http:\\/\\/127.0.0.1\\/'/g\" {{ volume_info.mount_point }}/etc/gitlab/gitlab.rb"
+    - "docker restart {{ docker_container_name }}"
+  register: result
+  until: result|success
+  retries: 10
+  delay: 10
+  tags:
+    - docker-containers-gitlab
+
+- name: 'Wait for return code 200'
+  shell: curl -L --head --silent http://{{ ansible_host }}:8980
+  register: result
+  until: result.stdout.find("200 OK") != -1
+  retries: 12
+  delay: 60
+  tags:
+    - docker-containers-gitlab
+
+- name: Configure GitLab permission
+  become: yes
+  shell: "{{ item }}"
+  with_items:
+    - "docker exec --user=root {{ docker_container_name }} chmod 2770 /var/opt/gitlab/git-data/repositories"
+#    - "docker exec -it {{ docker_container_name }} assets/update-permissions"
+    - "docker exec --user=root {{ docker_container_name }} chown -R gitlab-redis /var/opt/gitlab/redis/"
+    - "docker exec --user=root {{ docker_container_name }} chown -R gitlab-redis /var/opt/gitlab/redis/"
+    - "docker exec --user=root {{ docker_container_name }} gitlab-ctl reconfigure"
+    - "docker exec --user=root {{ docker_container_name }} rm -f /var/opt/gitlab/gitlab-rails/sockets/gitlab.socket"
+    - "docker restart {{ docker_container_name }}"
+  tags:
+    - docker-containers-gitlab
+
+- name: 'Wait for return code 200'
+  shell: curl -L --head --silent http://{{ ansible_host }}:8980
+  register: result
+  until: result.stdout.find("200 OK") != -1
+  retries: 12
+  delay: 60
+  tags:
+    - docker-containers-gitlab
+
+- name: removing temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  tags:
+    - docker-images-build

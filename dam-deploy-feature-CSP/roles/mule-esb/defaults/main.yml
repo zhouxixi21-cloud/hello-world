@@ -1,0 +1,56 @@
+---
+
+##  Docker repository usage
+docker_images_pull: yes                                     # enable pulling of FROM image
+docker_images_push: no                                      # using docker in isolation by default. set to yes to push to private registry.
+docker_images_force: no                                     # rebuild all docker images by default.
+
+docker_repository: 10.32.64.11:5000                             # Docker registry to push and pull images from
+
+consul_service_name: esb                                    # this container will be labelled with this consul service
+
+## Docker container defaults
+
+docker_container_name: esb
+docker_image: mule-esb
+docker_image_tag: 2.3
+docker_network_mode: bridge
+docker_network_name:
+  - name: bridge
+  - name: "{{ consul_network_name }}"
+docker_published_ports:
+  - "8280:8080/tcp"
+docker_volumes:
+  - "{{ docker_container_name }}_logs:/opt/mule/logs"
+
+esb_package_version: "latest"
+docker_esb_standalone_version: "3.8.1"
+docker_esb_standalone_sha1sum: "bf286b1b1c9d314f634fa8bdfb14a767774b872e"
+docker_esb_standalone_url: "http://{{ maven_repository }}/repository/maven/org/mule/distributions/mule-standalone/{{ docker_esb_standalone_version }}/mule-standalone-{{ docker_esb_standalone_version }}.zip"
+docker_esb_package_url: "http://{{ maven_repository }}/repository/maven-releases/wkcd-aem/wkcd-esb-mule/{{ esb_package_version }}/wkcd-esb-mule-{{ esb_package_version }}.zip"
+
+docker:
+  api_version: 1.22
+  timezone: "Asia/Hong_Kong"
+
+volume_info:
+  volume_group: rhel
+  logical_volume: "{{ docker_container_name }}"
+  size: 10g
+  mount_point: "/var/{{ docker_container_name }}"
+  mapping: "rhel-{{ docker_container_name }}"
+  fstype: xfs
+  is_encrypted: false
+
+aem_host: "author.service.dc1.consul"
+aem_port: 4502
+aem_username: admin
+aem_password: admin
+
+microsoft_analyze_api_key: "e25236e488814dd1a78486b42f15b31b"
+microsoft_face_api_key: "0216cdb4422947579f5d3313e32b5279"
+microsoft_analyze_confidence: 0.6
+google_api_key: "AIzaSyDCi0f_bSnUjGKEgqHNxajLpf77kjIbqmo"
+
+esb_wrapper_initmemory: "2048m"
+esb_wrapper_maxmemory: "4096m"

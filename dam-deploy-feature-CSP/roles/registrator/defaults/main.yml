@@ -1,0 +1,21 @@
+---
+
+docker:
+  api_version: 1.22
+  timezone: "Asia/Hong_Kong"
+
+docker_image: kidibox/registrator
+docker_image_tag: master
+docker_recreate: yes
+
+consul_environment: localdev
+consul_host: 192.168.28.2                                  # Consul host to sync Docker services
+consul_network_name: consul-net                            # Docker container network mode
+
+docker_networks:                                           # Docker networks to start Registrator in (--net )
+  - name: "{{ consul_network_name }}"
+
+registrator_retry_interval: 15000
+registrator_retry_attempts: 5
+
+registrator_opts: "-resync 60 -useIpFromLabel REGISTRATOR_CONTAINER_IP -ip {{ ansible_host }} -retry-attempts {{ registrator_retry_attempts }} -retry-interval {{ registrator_retry_interval }}"

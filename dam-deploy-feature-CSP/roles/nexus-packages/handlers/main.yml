@@ -1,0 +1,16 @@
+---
+
+- name: cleanup nexus packages
+  file:
+    name: "{{ working_dir.path }}"
+    state: absent
+  tags:
+    - nexus-packages-download
+
+- name: wait until all bundles are activated
+  aem_bundles_wait_activated:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+    interval_wait: "{{ interval_wait_all_bundles }}"

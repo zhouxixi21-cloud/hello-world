@@ -1,0 +1,63 @@
+---
+
+- include: configure-dam-update-asset-workflow.yml
+
+- name: docker inspect container bridge ip
+  command: "docker inspect -f '{{ '{{' }} .NetworkSettings.Networks.bridge.IPAddress {{ '}}' }}' {{ docker_container_name }}"
+  register: aem_bridge_host
+  become: yes
+  tags:
+    - aem-configure-workflow
+
+- name: copying META-INF
+  synchronize:
+    src=aem/conf/META-INF
+    dest=aem_conf
+  tags:
+    - aem-configure-workflow
+
+- name: template filter.xml
+  template:
+    src=filter.j2
+    dest=aem_conf/META-INF/vault/filter.xml
+  become: yes
+  tags:
+    - aem-configure-workflow
+
+- name: aem creating package with aem-configure-workflow
+  command: zip -r {{ aem_workflow_config_package_name }}-{{ aem_workflow_config_package_version }}.zip . chdir=aem_conf
+  tags:
+    - aem-configure-workflow
+
+- name: aem uploading aem-configure-workflow package
+  aem_upload_package:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    group_name: aem_config
+    package_name: "{{ aem_workflow_config_package_name }}"
+    package_version: "{{aem_workflow_config_package_version}}"
+    file_path: aem_conf
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+    force: yes
+  tags:
+    - aem-configure-workflow
+
+- name: installing aem-configure-workflow package
+  aem_install_package:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    group_name: aem_config
+    package_name: "{{ aem_workflow_config_package_name }}"
+    package_version: "{{aem_workflow_config_package_version}}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+  tags:
+    - aem-configure-workflow
+
+- name: removing aem configuration directory
+  file:
+    path=aem_conf
+    state=absent
+  tags:
+    - aem-configure-workflow

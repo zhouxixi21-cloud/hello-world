@@ -1,0 +1,8 @@
+---
+
+- name: hello world
+  hosts: hello
+
+
+  roles:
+    - role: hello-world

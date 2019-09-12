@@ -1,0 +1,5 @@
+---
+
+docker_container_name: "dispatcher-author01-{{ consul_environment }}"
+
+volume_info: []

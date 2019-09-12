@@ -1,0 +1,60 @@
+# file: localhost
+
+###########################
+# HOSTS
+###########################
+
+[localvmhostNet3]
+localhost ansible_connection=local
+
+[localvmhostNet1]
+localhost ansible_connection=local
+
+###########################
+# SERVICE TO SERVER MAP
+###########################
+
+
+[dockerhost:children]
+localvmhostNet3
+localvmhostNet1
+
+
+[sshhost:children]
+localvmhostNet3
+
+[esb:children]
+localvmhostNet3
+
+[management:children]
+
+[management_buildhost:children]
+localvmhostNet3
+
+[management_cahost:children]
+localvmhostNet3
+
+[management_control:children]
+localvmhostNet3
+
+[management_registry:children]
+localvmhostNet3
+
+
+[author:children]
+localvmhostNet3
+
+[author_dispatcher:children]
+localvmhostNet3
+
+
+
+[publisher:children]
+localvmhostNet3
+
+[publisher_dispatcher:children]
+localvmhostNet3
+
+
+[author_forms:children]
+localvmhostNet3

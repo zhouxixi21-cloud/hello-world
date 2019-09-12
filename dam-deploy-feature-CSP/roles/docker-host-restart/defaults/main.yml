@@ -1,0 +1,4 @@
+---
+
+client_base_url: unix://var/run/docker.sock
+stop_timeout: 3600

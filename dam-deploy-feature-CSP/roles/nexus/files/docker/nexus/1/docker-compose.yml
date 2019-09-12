@@ -1,0 +1,10 @@
+nexus:
+  build: .
+  labels:
+    os.version: "centos"
+    container.description: "docker nexus container without volume"
+  container_name: "devops/nexus"
+#  volumes:
+#    - nexus:/sonatype-work:rw
+  ports:
+   - "5000:5000"

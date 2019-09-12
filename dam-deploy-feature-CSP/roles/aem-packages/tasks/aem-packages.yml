@@ -1,0 +1,91 @@
+---
+
+- name: create temp folder for packages
+  file: dest={{ aem_packages_temp_path }} state=directory recurse=yes force=yes
+
+- name: wait until all bundles are activated before checking package status
+  aem_bundles_wait_activated:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+    interval_wait: "{{ interval_wait_all_bundles }}"
+
+- name: check if packages installed
+  aem_check_package_installed:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    group_name: "{{ group_name }}"
+    package_name: "{{ package_name }}"
+    package_version: "{{ package_version }}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+  register: pkgcheck
+  until: pkgcheck|success
+  retries: 180
+  delay: 5
+
+- name: download and cache files from Adobe cloud
+  action: get_url
+    url="https://www.adobeaemcloud.com{{ location_full }}/jcr%3acontent/package/file.res/{{ location_full | basename }}-{{ package_version }}.zip"
+    dest="{{ aem_packages_temp_path }}/{{ file_name }}"
+    url_password="{{ adobeaemcloud_password }}"
+    url_username="{{ adobeaemcloud_username }}"
+  when: >
+    not pkgcheck.exist and location_full
+
+- name: download and cache files from direct url
+  action: get_url
+    url="{{ direct_url }}"
+    dest="{{ aem_packages_temp_path }}/{{ file_name }}"
+  when: >
+    not pkgcheck.exist and direct_url
+
+- name: aem upload packages
+  aem_upload_package:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    group_name: "{{ group_name }}"
+    package_name: "{{ package_name }}"
+    package_version: "{{ package_version }}"
+    file_path: "{{ aem_packages_temp_path }}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+    force: yes
+  register: result
+  until: result|success
+  retries: 180
+  delay: 5
+  when: not pkgcheck.exist
+
+- name: aem install packages
+  aem_install_package:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    group_name: "{{ group_name }}"
+    package_name: "{{ package_name }}"
+    package_version: "{{ package_version }}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+    requires_restart: "yes"
+  register: result
+  until: result|success
+  retries: 180
+  delay: 5
+  when: not pkgcheck.exist
+
+- name: ensure packages installed
+  become: no
+  aem_check_package_installed:
+    host: "{{ aem_host }}"
+    port: "{{ aem_port }}"
+    group_name: "{{ group_name }}"
+    package_name: "{{ package_name }}"
+    package_version: "{{ package_version }}"
+    aem_username: "{{ aem_username }}"
+    aem_password: "{{ aem_password }}"
+  register: result
+  until: result|success
+  retries: 180
+  delay: 5
+  when: not pkgcheck.exist

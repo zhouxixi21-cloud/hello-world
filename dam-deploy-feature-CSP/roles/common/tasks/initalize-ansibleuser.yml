@@ -1,0 +1,6 @@
+---
+
+- name: Initialize Ansible user
+  script: roles/common/files/scripts/inituser.sh
+  tags:
+    - init-ansibleuser

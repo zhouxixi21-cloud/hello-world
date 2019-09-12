@@ -1,0 +1,41 @@
+---
+
+- name: Configure permission of solr cloud container volume
+  file:
+    path: "{{ docker_volume_basepath }}/{{ docker_container_name }}"
+    state: directory
+    mode: 0755
+    owner: solr
+    group: solr
+  become: yes
+  tags:
+    - docker-containers
+    - docker-containers-solr
+
+- name: start docker container solr cloud
+  docker_container:
+    name: "{{ docker_container_name }}"
+    image: "{{ docker_repository }}/{{ docker_image }}:{{ docker_image_tag }}"
+    state: started
+    restart: yes
+    published_ports: "{{ docker_published_ports }}"
+    network_mode: "{{ docker_network_mode }}"
+    networks: "{{ docker_network_name }}"
+    labels:
+      REGISTRATOR_CONTAINER_IP: "{{ solr_bind_ip }}"
+    privileged: true
+    volumes: "{{ docker_volumes }}"
+    volume_driver: "{{ docker_volume_driver }}"
+    keep_volumes: "{{ docker_keep_volumes }}"
+    docker_api_version: "{{ docker.api_version }}"
+    command: "-f -q -cloud -m {{ solr_jvm_heap }} -h {{ solr_bind_ip }} -s /opt/solr/server/aemsolr -a -Dsolr.log.dir=/var/solr/data/logs"
+    env:
+      SERVICE_TAGS: "{{ consul_service_tags }}"
+      SERVICE_NAME: "{{ consul_service_name }}"
+      SERVICE_8983_NAME: "{{ consul_service_name }}"
+      SERVICE_9983_NAME: "{{ consul_service_name }}zk"
+      SOLR_JAVA_STACK_SIZE: "{{ solr_jvm_stack_size }}"
+  become: yes
+  tags:
+    - docker-containers
+    - docker-containers-solr

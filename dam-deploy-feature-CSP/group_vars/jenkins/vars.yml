@@ -1,0 +1,12 @@
+---
+# file: group_vars/jenkins
+include: net.yml
+
+docker:
+  api_version: 1.22
+  timezone: "Asia/Hong_Kong"
+
+consul_service_name: jenkins
+
+maven:
+  repository_url: http://10.32.64.11:8081/repository/maven-public/

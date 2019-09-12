@@ -1,0 +1,45 @@
+---
+
+- name: create temp directory
+  tempfile:
+    state: directory
+  register: temp_dir
+  tags:
+    - docker-images-build
+    - docker-images-build-aem
+
+- name: copy docker files
+  synchronize:
+    src: docker/
+    dest: "{{ temp_dir.path }}"
+  tags:
+    - docker-images-build
+    - docker-images-build-aem
+
+- name: build aem docker image
+  docker_image:
+    name: "{{ docker_image }}"
+    tag: "{{ docker_image_tag_aem }}"
+    path: "{{ temp_dir.path }}/aem6-1/{{ docker_image_tag_aem }}"
+    state: present
+    docker_api_version: "{{ docker.api_version }}"
+    force: "{{ docker_images_force }}"
+    push: "{{ docker_images_push }}"
+    pull: "{{ docker_images_pull }}"
+    repository: "{{ docker_repository }}/{{ docker_image }}"
+    buildargs:
+      AEM_QUICKSTART_URL: "{{ docker_aem_quickstart_url }}"
+      AEM_PORT: "{{ aem_port }}"
+  become: yes
+  become_method: sudo
+  tags:
+    - docker-images-build
+    - docker-images-build-aem
+
+- name: removing temp directory
+  file:
+    name: "{{ temp_dir.path }}"
+    state: absent
+  tags:
+    - docker-images-build
+    - docker-images-build-aem

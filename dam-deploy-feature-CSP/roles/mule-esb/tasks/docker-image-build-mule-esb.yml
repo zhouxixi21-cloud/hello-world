@@ -1,0 +1,47 @@
+---
+
+- name: create temp directory
+  tempfile:
+    state: directory
+  register: temp_dir
+  tags:
+    - docker-images-build
+    - docker-images-build-muleesb
+
+- name: copy docker files
+  synchronize:
+    src: docker/
+    dest: "{{ temp_dir.path }}"
+  tags:
+    - docker-images-build
+    - docker-images-build-muleesb
+
+- name: build mule esb docker image
+  docker_image:
+    name: "{{ docker_image }}"
+    tag: "{{ esb_package_version }}"
+    path: "{{ temp_dir.path }}/muleesb/{{ docker_image_tag }}"
+    state: present
+    force: "{{ docker_images_force }}"
+    push: "{{ docker_images_push }}"
+    pull: "{{ docker_images_pull }}"
+    repository: "{{ docker_repository }}/{{ docker_image }}"
+    buildargs:
+      ESB_STANDALONE_VERSION: "{{ docker_esb_standalone_version }}"
+      ESB_STANDALONE_URL: "{{ docker_esb_standalone_url }}"
+      ESB_STANDALONE_SHA1SUM: "{{ docker_esb_standalone_sha1sum }}"
+      ESB_PACKAGE_VERSION: "{{ esb_package_version }}"
+      ESB_PACKAGE_URL: "{{ docker_esb_package_url }}"
+  become: yes
+  become_method: sudo
+  tags:
+    - docker-images-build
+    - docker-images-build-muleesb
+
+- name: removing temp directory
+  file:
+    name: "{{ temp_dir.path }}"
+    state: absent
+  tags:
+    - docker-images-build
+    - docker-images-build-muleesb

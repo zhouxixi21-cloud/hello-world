@@ -1,0 +1,22 @@
+---
+
+- name: wkcda dam server playbook
+  hosts: applications
+  strategy: free
+
+  pre_tasks: []
+
+  roles:
+  - role: rhel-register      ##无法验证身份
+  - role: yum-packages
+  - role: rhel-unregister
+  - role: python-packages   #installing pyaem packages    本地地址
+  - role: docker-host       ##无法创分区
+  - role: server-iptables
+  - role: server-sshd       ##会修改ssh连接配置
+  - role: docker-host-restart
+  - role: docker-network
+
+  post_tasks: []
+
+  handlers: []

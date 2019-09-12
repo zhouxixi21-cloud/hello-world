@@ -1,0 +1,11 @@
+---
+
+- name: wkcda dam esb playbook
+  hosts: esb
+
+  pre_tasks:
+   - include_role:
+       name: docker-login
+
+  roles:
+    - role: mule-esb

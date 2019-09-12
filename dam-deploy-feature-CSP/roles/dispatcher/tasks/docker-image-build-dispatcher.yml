@@ -1,0 +1,93 @@
+---
+
+- name: Create temp directory
+  shell: "mktemp -d"
+  register: mktemp
+  tags:
+    - docker-images-build
+    - docker-images-build-apache
+    - docker-images-build-dispatcher
+
+- name: copy aem apache dispatcher docker files
+  synchronize:
+    src: docker/
+    dest: "{{ mktemp.stdout }}"
+  tags:
+    - docker-images-build
+    - docker-images-build-apache
+    - docker-images-build-dispatcher
+
+- name: build apache docker image
+  docker_image:
+    path: "{{ mktemp.stdout }}/aem-apache/{{ docker_image_tag_aem_apache }}"
+    name: "aem-apache"
+    tag: "{{ docker_image_tag_aem_apache }}"
+    api_version: "{{ docker.api_version }}"
+    push: "{{ docker_images_push }}"
+    pull: "{{ docker_images_pull }}"
+    force: "{{ docker_images_force }}"
+    repository: "{{ docker_repository }}/aem-apache"
+    buildargs:
+      APACHE_RUN_USER: "apache"
+      APACHE_RUN_GROUP: "apache"
+      APACHE_RUN_USEID: "{{ group_apache_gid }}"
+  become: yes
+  tags:
+    - docker-images-build
+    - docker-images-build-apache
+
+- name: build dispatcher docker image
+  docker_image:
+    path: "{{ mktemp.stdout }}/aem-dispatcher/{{ docker_image_tag_aem_dispatcher }}"
+    name: "aem-dispatcher"
+    tag: "{{ docker_image_tag_aem_dispatcher }}"
+    api_version: "{{ docker.api_version }}"
+    force: "{{ docker_images_force }}"
+    push: "{{ docker_images_push }}"
+    pull: "{{ docker_images_pull }}"
+    repository: "{{ docker_repository }}/aem-dispatcher"
+    buildargs:
+      APACHE_VERSION: "{{ apache_version }}"
+      DISPATCHER_VERSION: "{{ dispatcher_version }}"
+  become: yes
+  tags:
+    - docker-images-build
+    - docker-images-build-dispatcher
+
+- name: build dispatcher author docker image
+  docker_image:
+    path: "{{ mktemp.stdout }}/aem-dam-dispatcher-author/{{ docker_image_tag_aem_dispatcher_author }}"
+    name: "aem-dam-dispatcher-author"
+    tag: "{{ docker_image_tag_aem_dispatcher_author }}"
+    api_version: "{{ docker.api_version }}"
+    force: "{{ docker_images_force }}"
+    push: "{{ docker_images_push }}"
+    pull: "{{ docker_images_pull }}"
+    repository: "{{ docker_repository }}/aem-dam-dispatcher-author"
+  become: yes
+  tags:
+    - docker-images-build
+    - docker-images-build-dispatcher
+
+- name: build dispatcher publish docker image
+  docker_image:
+    path: "{{ mktemp.stdout }}/aem-dam-dispatcher-publisher/{{ docker_image_tag_aem_dispatcher_publisher }}"
+    name: "aem-dam-dispatcher-publisher"
+    tag: "{{ docker_image_tag_aem_dispatcher_publisher }}"
+    api_version: "{{ docker.api_version }}"
+    force: "{{ docker_images_force }}"
+    push: "{{ docker_images_push }}"
+    pull: "{{ docker_images_pull }}"
+    repository: "{{ docker_repository }}/aem-dam-dispatcher-publisher"
+  become: yes
+  tags:
+    - docker-images-build
+    - docker-images-build-dispatcher
+
+- name: removing temp directory
+  file:
+    name: "{{ mktemp.stdout }}"
+    state: absent
+  tags:
+    - docker-images-build
+    - docker-images-build-dispatcher

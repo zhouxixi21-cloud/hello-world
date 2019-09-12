@@ -1,0 +1,58 @@
+---
+
+docker_images_force: no
+docker_images_push: no                    # 此处改为yes可以自动上传镜像到镜像库 
+docker_images_pull: yes                                     # Enable pulling FROM images
+
+docker_registry_username: admin
+docker_registry_password: admin123
+docker_registry_email: devops@wkcda.hk
+
+docker_dns_servers:
+  - 192.168.28.2
+
+docker_repository: 10.72.76.85:5000
+maven_repository: 10.72.76.85:8081
+
+consul_dns_primary: 8.8.8.8                                 # IP address of the consul DNS. Docker network will be configured to this.
+consul_dns_secondary: 8.8.4.4
+
+# consul-server
+docker_consul_net_driver: bridge                            # Sets the network driver for the Docker container. Options: [bridge|overlay|host]
+consul_environment: localdev
+consul_host: "{{ ansible_host }}"                           # Registrator registers services with this consul host
+consul_dns:                                                 # IP address of the consul DNS. Docker network will be configured to this.
+  - "{{ consul_dns_primary }}"
+  - "{{ consul_dns_secondary }}"
+consul_network_name: consul-net
+consul_opts_extra: "-ui -bootstrap-expect=1"
+consul_opts: "-server -recursor 8.8.8.8 -recursor 8.8.4.4 {{ consul_opts_extra }}"
+
+# docker-host
+docker_daemon_template: default                             # Configures /etc/sysconfig/docker. Options: [default|cluster]
+
+docker_aem_published_port: "{{ ansible_host }}:{{ aem_port }}:{{ aem_port }}/tcp"
+
+docker_keep_volumes: true                                   # Remove all data when containers are removed.
+
+# server-network-interfaces
+network_interfaces:
+  - conn_name: eth0
+    ipaddr: 192.168.27.2
+    gateway: 192.168.27.1
+    dns4: "{{ consul_dns }}"
+    peerdns: "yes"
+    nm_controlled: "yes"
+    uuid: e184c615-6652-41c7-aec7-f7261d779e4a
+  - conn_name: eth2
+    ipaddr: 192.168.28.2
+    gateway: 192.168.28.250
+    dns4: "{{ consul_dns }}"
+    peerdns: "no"
+    nm_controlled: "no"
+    uuid: 3a73717e-65ab-93e8-b518-24f5af32dc0d
+
+esb_repository_url: http://10.72.76.85:8081/repository/maven-snapshots/
+
+# disk
+installed_disk: []

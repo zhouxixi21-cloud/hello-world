@@ -1,0 +1,106 @@
+---
+
+- name: templating docker network config
+  template:
+     src="docker-network.default.j2"
+     dest=/etc/sysconfig/docker-network
+  become: yes
+  tags:
+    - docker-daemon-configure
+
+- name: templating docker daemon config
+  template:
+     src="docker.{{ docker_daemon_template }}.j2"
+     dest=/etc/sysconfig/docker
+  become: yes
+  tags:
+    - docker-daemon-configure
+
+- name: Create partition  #创建分区
+  parted:
+    device: /dev/sdb
+    number: 1
+    state: present
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: Create partition to additional disk
+  parted:
+    device: "{{ item }}"
+    number: 1
+    state: present
+  with_items:
+    - "{{ vg1_disks }}"
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: Create or resize volume group vg1
+  lvg:
+    vg: vg1
+    pvs: "/dev/sdb1{% if vg1_disks != [] %},{% endif %}{{ vg1_disks|zip_longest([], fillvalue='1')| map('join')|join(',') }}"
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: templating docker storage config
+  template:
+     src="docker-storage-setup.j2"
+     dest=/etc/sysconfig/docker-storage-setup
+  become: yes
+  tags:
+    - docker-daemon-configure
+
+- name: edit fstab
+  lineinfile:
+    path: /etc/fstab
+    state: present
+    regexp: "^(.*){{ nfs_share }}"
+#    line: "//app-a-fs001/local {{ docker_volume_basepath }}      cifs     credentials=/root/smb.cred       0 0"
+    line: "app-a-fs001.wkcda.local:/{{ nfs_share }}/{{ inventory_hostname_short }} {{ docker_volume_basepath }}      nfs     defaults       0 0"
+  become: yes
+  tags:
+    - docker-daemon-configure
+
+### http://www.advishnuprasad.com/blog/2016/03/29/setup-nfs-server-and-client-using-ansible/
+- name: Configure permission of mountable dir
+  file:
+    path: "{{ docker_volume_basepath }}"
+    state: directory
+    mode: 0775
+    owner: root
+    group: root
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: mounting new filesystem
+  shell: "mount -a"
+  become: yes
+  ignore_errors: true
+  tags:
+    - docker-daemon-configure
+
+- name: Extend the logical volume to consume all remaining space in the volume group
+  lvol:
+    vg: "{{ extend_vgname }}"
+    lv: "{{ extend_lvname }}"
+    size: "{{ lvextend_options }}"
+  when: lv_extend
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure
+
+- name: resizing filesystem
+  shell: "xfs_growfs /dev/mapper/{{ extend_vgname }}-{{ extend_lvname }}"
+  when: lv_resize
+  become: yes
+  tags:
+    - docker-daemon-configure
+    - docker-volume-configure

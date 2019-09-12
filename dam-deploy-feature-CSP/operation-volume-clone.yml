@@ -1,0 +1,112 @@
+---
+
+- name: Solr Volume Clone
+  hosts: solr
+  strategy: free
+  gather_facts: no
+  vars:
+    rsync_opts: "-aA --delete -e \"ssh -i /home/wkcdvmadmin/.ssh/id_rsa -o StrictHostKeyChecking=no\" --rsync-path=\"sudo rsync\""
+    rsync_src: "wkcdvmadmin@{{ rsync_src_host | default('127.0.0.1') }}:/var/lib/rancher/convoy/devicemapper/mounts/solr01-{{ consul_environment }}/"
+    rsync_dest: "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}/"
+
+  pre_tasks: []
+  roles: []
+
+  tasks:
+  - name: removing destination directory
+    file:
+      path: "{{ rsync_dest }}"
+      state: absent
+    become: yes
+    tags:
+    - teardown-clone
+
+  - name: Solr data Synchronization
+    shell: "rsync {{ rsync_opts }} {{ rsync_src }} {{ rsync_dest }}"
+    ignore_errors: true
+    become: yes
+
+  post_tasks: []
+
+
+- name: ESB Volume Clone
+  hosts: esb
+  strategy: free
+  gather_facts: no
+  vars:
+    rsync_opts: "-aA --delete -e \"ssh -i /home/wkcdvmadmin/.ssh/id_rsa -o StrictHostKeyChecking=no\" --rsync-path=\"sudo rsync\" --bwlimit=5000"
+    rsync_src: "wkcdvmadmin@{{ rsync_src_host | default('127.0.0.1') }}:/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}-logs/"
+    rsync_dest: "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}-logs/"
+
+  pre_tasks: []
+  roles: []
+
+  tasks:
+  - name: removing destination directory
+    file:
+      path: "{{ rsync_dest }}"
+      state: absent
+    become: yes
+    tags:
+    - teardown-clone
+
+  - name: ESB data Synchronization
+    shell: "rsync {{ rsync_opts }} {{ rsync_src }} {{ rsync_dest }}"
+    ignore_errors: true
+    become: yes
+
+  post_tasks: []
+
+
+- name: AEM Volume Clone
+  hosts: publisher:author
+  strategy: free
+  gather_facts: no
+  vars:
+    rsync_opts: "-aA --delete -e \"ssh -i /home/wkcdvmadmin/.ssh/id_rsa -o StrictHostKeyChecking=no\" --rsync-path=\"sudo rsync\""
+    rsync_src: "wkcdvmadmin@{{ rsync_src_host | default('127.0.0.1') }}:/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}/ --exclude=\"repository/datastore/\""
+    rsync_dest: "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}/"
+    rsync_datastore_src: "wkcdvmadmin@{{ rsync_src_host | default('127.0.0.1') }}:/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}/repository/datastore/"
+    rsync_datastore_dest: "/var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}-datastore/"
+
+  pre_tasks: []
+  roles: []
+
+  tasks:
+  - name: removing destination directory
+    file:
+      path: "{{ rsync_dest }}"
+      state: absent
+    become: yes
+    tags:
+    - teardown-clone
+
+  - name: removing destination directory
+    file:
+      path: "{{ rsync_datastore_dest }}"
+      state: absent
+    become: yes
+    tags:
+    - teardown-clone
+
+  - name: Segmentstore Synchronization
+    shell: "rsync {{ rsync_opts }} {{ rsync_src }} {{ rsync_dest }}"
+    ignore_errors: true
+    become: yes
+
+  - name: Datastore Synchronization
+    shell: "rsync {{ rsync_opts }} {{ rsync_datastore_src }} {{ rsync_datastore_dest }}"
+    ignore_errors: true
+    become: yes
+
+  - name: Configure datastore path
+    lineinfile:
+      path: /var/lib/rancher/convoy/devicemapper/mounts/{{ docker_container_name }}/install/org.apache.jackrabbit.oak.plugins.blob.datastore.FileDataStore.config
+      state: present
+      regexp: "^path"
+      line: "path=\"/aem/datastore\""
+    become: yes
+    tags:
+    - configure-datastore
+
+  post_tasks: []
