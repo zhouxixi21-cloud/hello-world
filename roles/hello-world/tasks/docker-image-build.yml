@@ -1,0 +1,37 @@
+---
+
+- name: create temp directory
+  tempfile:
+    state: directory
+  register: temp_dir
+  tags:
+    - docker-images-build
+    - docker-images-build-hello-world
+
+- name: copy docker files
+  synchronize:
+    src: "docker/hello/"
+    dest: "{{ temp_dir.path }}"
+  tags:
+    - docker-images-build
+    - docker-images-build-hello-world
+
+- name: build aem base image
+  docker_image:
+    name: hello-world
+    path: "{{ temp_dir.path }}"
+    state: present
+    docker_api_version: "{{ docker.api_version }}"
+  become: yes
+  become_method: sudo
+  tags:
+    - docker-images-build
+    - docker-images-build-hello-world
+
+- name: removing temp directory
+  file:
+    name: "{{ temp_dir.path }}"
+    state: absent
+  tags:
+    - docker-images-build
+    - docker-images-build-hello-world

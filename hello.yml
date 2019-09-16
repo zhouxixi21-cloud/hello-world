@@ -1,7 +1,7 @@
 ---
 
 - name: hello world
-  hosts: hello
+  hosts: applications
 
 
   roles:

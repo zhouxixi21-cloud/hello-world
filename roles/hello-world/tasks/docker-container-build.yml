@@ -1,0 +1,14 @@
+---
+
+
+- name: start docker container
+  docker_container:
+    name: "{{ docker_container_name }}"
+    image: "{{ docker_image }}"
+    state: started
+    privileged: true
+    published_ports: "{{ docker_published_ports }}"
+  become: yes
+  become_method: sudo
+  tags:
+    - docker-containers
