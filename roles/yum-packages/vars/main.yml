@@ -17,6 +17,6 @@ yum:
     - name: "gcc"
       version: "4.8.5"
       enablerepo: ""
-    - name: "NetworkManager-glib"    #centos仓库没有
-      version: "1.8.0"   #   1.18.0
-      enablerepo: ""
+    #- name: "NetworkManager-glib"    #centos仓库没有
+    #  version: "1.8.0"   #   1.18.0
+    #  enablerepo: ""
