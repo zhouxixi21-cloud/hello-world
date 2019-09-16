@@ -11,6 +11,6 @@ docker_images_push: no                                                 # using d
 docker_images_force: yes                                               # rebuild all docker images by default.
 
 docker_published_ports:
-    - "8082:8082/tcp"
+    - "4503:4503/tcp"
 
 docker_repository: 0.0.0.0:5000                                        # Docker registry to push and pull images from
