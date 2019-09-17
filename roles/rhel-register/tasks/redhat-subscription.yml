@@ -8,6 +8,7 @@
     autosubscribe: true
     force_register: true
   become: yes
+  become_method: sudo
   tags:
     - redhat-subscription
     - redhat-subscription-register
