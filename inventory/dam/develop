@@ -5,7 +5,8 @@
 ###########################
 
 [applications]
-DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+10.33.94.68
+#DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
 #DAM-L-DV002.wkcda.local ansible_host=10.32.171.13
 #DAM-L-DV003.wkcda.local ansible_host=10.32.171.14
 #DAM-L-DV004.wkcda.local ansible_host=10.33.94.68
