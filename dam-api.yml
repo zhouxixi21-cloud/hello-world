@@ -1,0 +1,8 @@
+---
+
+- name: hello world
+  hosts: applications
+
+
+  roles:
+    - role: dam-api
