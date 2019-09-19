@@ -1,0 +1,79 @@
+# file: develop
+
+###########################
+# HOSTS
+###########################
+
+[localvmhostNet3]
+10.33.94.30
+
+[localVMHostForms]
+10.33.94.30 CQ_RUNMODE_EXTRA="forms"
+
+[localVMHostAssets]
+10.33.94.30 CQ_RUNMODE_EXTRA="assets"
+
+[localvmhostNet1]
+192.168.27.2
+
+[author]
+DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+
+[publisher]
+DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+
+[dispatcher]
+DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+
+[dispatcher-publish]
+DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+
+[applications]
+DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+
+[consul-server]
+DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+
+[esb]
+DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+
+[jenkins]
+DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+
+[management]
+DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+
+[nexus]
+DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+
+[solr]
+DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+
+[toughday]
+DAM-L-DV005.wkcda.local ansible_host=10.33.94.30
+
+
+
+###########################
+# SERVICE TO SERVER MAP
+###########################
+
+[develop:children]
+applications
+consul-server
+esb
+author
+publisher
+dispatcher
+dispatcher-publish
+solr
+jenkins
+nexus
+
+[author:vars]
+aem_runmode="author,localdev,nosamplecontent"
+aem_jvm_opts="-server -Xms2048m -Xmx4096m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
+
+[publisher:vars]
+aem_runmode="publish,localdev,nosamplecontent"
+aem_jvm_opts="-server -Xms1024m -Xmx1024m -XX:MaxDirectMemorySize=1024m -XX:+CMSClassUnloadingEnabled -Djava.awt.headless=true"
