@@ -1,0 +1,22 @@
+The final job in the pipeline implements the release of a version that has successfully passed the acceptance test.
+
+Technically, two things happen: the artifact is uploaded to Nexus into a release repository, and it is imported by hdbalm to the production system.
+
+We create a copy of the deploy job in the test system, adapt the target URL that points to the productive system and add another step for the upload to Nexus.
+
+Procedure
+Open Jenkins, click New Item, and enter CI_Shine_master_release. Select Copy existing item and enter CI_Shine_master_testDeploy as the copy template.
+
+Change the HANA_HOST parameter to the host name of the production system.
+
+In the Build section, add the following lines at the beginning of the shell script:
+
+# deploy to Nexus
+mv target/pom.xml .
+mvn deploy:deploy-file -B -Durl=<url to your Nexus release repository> -Dfile="target/${DELIVERY_UNIT}.tgz" -DrepositoryId=nexusCIProcess -Dpackaging=tgz -DpomFile=pom.xml
+Remove any post-build action.
+
+Save the job definition.
+
+
+The Jenkins CI build job fetches the sources from Git, imports them into the SAP HANA CI system using regi to assign the package structure to a delivery unit that will be exported afterwards using regi. As an alternative you can assemble a software component per DU using hdbalm assemble, which is described at the end of this guide.
