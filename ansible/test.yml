@@ -1,5 +1,5 @@
 - hosts: 47.56.86.153
   remote_user: root
   tasks:
-    - name: CREATE FOLDER
-      command: mkdir ./test
+    - name: install docker
+      yum: name=ansible state=latest
