@@ -1,5 +1,5 @@
 - hosts: 47.56.86.153
   remote_user: root
   tasks:
-    - name: install docker
-      yum: name=ansible state=latest
+    - name: download git information
+      command: git clone https://github.com/zhouxixi21-cloud/hello-world.git
