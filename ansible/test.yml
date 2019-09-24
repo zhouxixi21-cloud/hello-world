@@ -1,5 +1,4 @@
 - hosts: 141.188.112.187
-  remote_user: anszhang
   tasks:
     - name: CREATE FOLDER
       command: mkdir /home/anszhang/test
