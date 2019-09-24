@@ -2,4 +2,4 @@
   remote_user: anszhang
   tasks:
     - name: CREATE FOLDER
-      command: mkdir ./test
+      command: mkdir /home/anszhang/test
