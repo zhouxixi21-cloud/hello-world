@@ -1,5 +1,5 @@
-- hosts: 47.56.86.153
-  remote_user: root
+- hosts: lqhan11.drp.agilent.com
+  remote_user: anszhang
   tasks:
-    - name: download git information
-      command: git clone https://github.com/zhouxixi21-cloud/hello-world.git
+    - name: CREATE FOLDER
+      command: mkdir ./test
