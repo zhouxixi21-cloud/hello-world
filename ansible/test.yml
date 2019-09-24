@@ -1,4 +1,4 @@
-- hosts: lqhan11.drp.agilent.com
+- hosts: 141.188.112.187
   remote_user: anszhang
   tasks:
     - name: CREATE FOLDER
