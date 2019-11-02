@@ -1,5 +1,5 @@
 #python -c "import ansible; print ansible.__version__"
-ansible==2.0.0
+ansible==2.6.18
 #python -c "import paramiko; print paramiko.__version__"
 paramiko==1.15.2
 #python -c "import yaml; print yaml.__version__"
