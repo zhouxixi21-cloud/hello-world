@@ -3,7 +3,7 @@ ansible==2.0.0
 #python -c "import paramiko; print paramiko.__version__"
 paramiko==1.15.2
 #python -c "import yaml; print yaml.__version__"
-PyYAML==3.11
+PyYAML==5.4
 #python -c "import jinja2; print jinja2.__version__"
 Jinja2==2.8
 #python -c "import httplib2; print httplib2.__version__"
